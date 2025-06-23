@@ -1,21 +1,434 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@800&display=swap');
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@font-face {
+  font-family: "Cubano";
+  src: url("../public/assets/Cubano.otf") format("opentype");
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@font-face {
+  font-family: "Poppins";
+  src: url("../public/assets/fonts/Poppins-Regular.ttf") format("opentype");
+}
+
+/* CSS Variables */
+:root {
+  --text-light: #000000;
+  --bg-light: #FFFFFF;
+  --text-dark: #FFFFFF;
+  --bg-dark: #000000;
+  --font-size: 16px;
+}
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  cursor: default;
+}
+
+html, body {
+  padding: 0;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+  color: white;
+  background-color: black;
+}
+
+a, button {
+  cursor: pointer !important;
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.pointer-cursor {
+  cursor: pointer;
+}
+
+.pointer-cursor:hover {
+  cursor: pointer;
+}
+
+/* Typography */
+h1 {
+  z-index: 1;
+  font-family: 'Cubano', sans-serif;
+  color: white;
+  font-size: 100px;
+  text-align: center;
+  margin: 0;
+}
+
+h1:hover {
+  background-color: white;
+  color: black;
+}
+
+.glitch {
+  color: white;
+}
+
+.glitch:hover {
+  background-color: white;
+  color: black;
+}
+
+h2 {
+  z-index: 1;
+  font-family: 'Cubano', sans-serif;
+  font-size: 2.3em;
+  margin: 0;
+  color: white;
+}
+
+p {
+  z-index: 1;
+}
+
+/* Navigation */
+.hamburger {
+  position: absolute;
+  top: 5%;
+  left: 2%;
+  width: 36px;
+  height: 26px;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  transition: all .3s ease-in;
+  z-index: 7;
+  align-content: center;
+}
+
+.bar {
+  fill: #ffffff;
+  width: 100%;
+  transition: all .3s ease-in;
+}
+
+.svg {
+  transition: .3s ease-in;
+}
+
+.hamburger.open .svg {
+  transform: rotate(-90deg);
+}
+
+.hamburger.open .bar {
+  fill: #000000;
+}
+
+.navigation {
+  position: fixed;
+  left: -500px;
+  width: 350px;
+  height: 100%;
+  background-color: #ffffff;
+  transition: .5s;
+  z-index: 6;
+}
+
+.navigation.active {
+  left: 0;
+}
+
+.navigation ul {
+  margin-top: 100px;
+  padding: 0;
+}
+
+.navigation li {
+  color: #000000;
+  text-align: center;
+  font-family: 'Cubano', sans-serif;
+  text-transform: uppercase;
+  list-style-type: none;
+  font-size: 2.5em;
+  padding: 20px 30px;
+}
+
+.navigation nav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.navigation .footer {
+  margin-top: auto;
+  padding: 10px;
+  font-family: 'Cubano', sans-serif;
+}
+
+.footer-item {
+  text-align: center;
+  padding: 10px;
+  font-size: 1.5rem;
+}
+
+#resume {
+  color: #C69D70;
+  text-decoration: underline;
+}
+
+#resume:hover {
+  color: white;
+  background-color: #C69D70;
+  transition: background-color 0.1s, color 0.1s;
+  transition-delay: 0.1s;
+}
+
+.social {
+  height: 34px;
+  width: 34px;
+  color: black;
+  cursor: pointer;
+  padding-left: 3px;
+  padding-right: 3px;
+  text-decoration: none;
+}
+
+.social:hover {
+  color: #C69D70;
+}
+
+#socials {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-right: 30px;
+  margin-left: 30px;
+}
+
+.navigation-item:hover {
+  text-decoration: line-through;
+  color: #C69D70;
+  transition: text-decoration 0.1s;
+  transition-delay: 0.1s;
+}
+
+/* Overlay */
+#overlay {
+  display: none;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-color: rgba(253, 127, 39, 0.3);
+  z-index: 4;
+}
+
+#overlay.active {
+  display: block;
+}
+
+/* Hero Section */
+#hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: black;
+  flex-direction: column;
+}
+
+/* Animations */
+@keyframes ripple {
+  from {
+    opacity: 1;
+    transform: scale(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(10);
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes rotate {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* Blob */
+#blob {
+  z-index: 0;
+  height: 500px;
+  aspect-ratio: 1;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: linear-gradient(to right, #f1d47c, #6e1320);
+  animation: rotate 20s infinite;
+  filter: blur(200px);
+}
+
+/*Carpet*/
+.carpet {
+  position: absolute !important;
+  transform: translateY(-20px) !important;
+  bottom: 1rem;
+  width: 98%;
+  height: auto;
+  left: 50%;
+  z-index: -9999;
+  /* Prevent layout shift */
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+
+/* Furniture Sections */
+.about {
+  position: absolute;
+  right: 6rem;
+  bottom: 4rem;
+  width: 26%;
+  height: auto;
+}
+
+#about-arrow {
+  position: absolute;
+  right: 6rem;
+  bottom: 28rem;
+}
+
+#about-title {
+  position: absolute;
+  right: 10rem;
+  bottom: 30.5rem;
+}
+
+#about-outline, #about-colored, #about-title, #about-arrow {
+  transition: opacity 0.2s ease-in-out;
+}
+
+#about-colored, #about:hover #about-outline, #about-title, #about-arrow {
+  opacity: 0;
+}
+
+#about:hover #about-colored, #about:hover #about-title, #about:hover #about-arrow {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.work {
+  position: absolute;
+  bottom: 2rem;
+  width: 28%;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+#work-title {
+  position: absolute;
+  bottom: 17rem;
+  left: 54%;
+  opacity: 0;
+}
+
+#work-arrow {
+  position: absolute;
+  bottom: 14rem;
+  left: 50%;
+  transform: translate(-50%, 0);
+  opacity: 0;
+}
+
+#work-outline, #work-colored, #work-title, #work-arrow {
+  transition: opacity 0.2s ease-in-out;
+}
+
+#work-colored, #work:hover #work-outline {
+  opacity: 0;
+}
+
+#work:hover, #work:hover #work-colored, #work:hover #work-arrow, #work:hover #work-title {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.projects {
+  position: absolute;
+  left: 10rem;
+  bottom: 5rem;
+  width: 19.8%;
+  height: auto;
+}
+
+#projects-title, #projects-arrow {
+  position: absolute;
+  bottom: 24.5rem;
+  left: 16rem;
+  opacity: 0;
+}
+
+#projects-arrow {
+  bottom: 20rem;
+  left: 15rem;
+}
+
+#projects-title {
+  transform: translate(-50%, 0);
+}
+
+#projects-outline, #projects-colored, #projects-arrow, #projects-title {
+  transition: opacity 0.2s ease-in-out;
+}
+
+#projects-colored, #projects:hover #projects-outline {
+  opacity: 0;
+}
+
+#projects:hover #projects-colored, #projects:hover #projects-arrow, #projects:hover #projects-title {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.contact {
+  position: absolute;
+  left: 4rem;
+  bottom: 50%;
+  height: auto;
+}
+
+#contact-title, #contact-arrow {
+  position: absolute;
+  top: 12rem;
+  left: 8rem;
+  opacity: 0;
+}
+
+#contact-title {
+  transform: translate(30%, -2rem);
+}
+
+#contact-outline, #contact-colored, #contact-arrow, #contact-title {
+  transition: opacity 0.2s ease-in-out;
+}
+
+#contact-colored, #contact:hover #contact-outline {
+  opacity: 0;
+}
+
+#contact:hover #contact-colored, #contact:hover #contact-arrow, #contact:hover #contact-title {
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Responsive - Hide furniture on mobile */
+@media (max-width: 1024px) {
+  .about, .work, .projects, .contact {
+    display: none !important;
+  }
 }
