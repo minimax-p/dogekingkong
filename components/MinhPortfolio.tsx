@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 
 // Type definitions
@@ -24,22 +25,24 @@ interface FurnitureSectionProps {
 const Navigation: React.FC<NavigationProps> = ({ isOpen, onToggle }) => {
     return (
         <>
-            <button className={`hamburger pointer-cursor ${isOpen ? 'open' : ''}`} onClick={onToggle}>
+            <div className={`hamburger pointer-cursor ${isOpen ? 'open' : ''}`} onClick={onToggle}>
                 <svg className="pointer-cursor svg" width="36" height="26" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path className="bar pointer-cursor" d="M2.14271 3.2232C9.48416 3.2232 16.8256 3.2232 24.2088 3.2232C26.2944 3.2232 28.4218 3.2232 30.5074 3.2232C31.8422 3.2232 31.8422 0 30.5074 0C23.166 0 15.8245 0 8.44135 0C6.35571 0 4.22835 0 2.14271 0C0.807899 0 0.807899 3.2232 2.14271 3.2232Z" fill="currentColor"/>
                     <path className="bar pointer-cursor" d="M2.00425 14.5084C10.5971 14.7018 19.1482 14.444 27.7411 13.8638C30.1604 13.6704 32.5797 13.5415 34.9991 13.2836C36.3339 13.1547 36.3339 9.93148 34.9991 10.0604C26.448 10.834 17.8551 11.2852 9.304 11.2852C6.88465 11.2852 4.46531 11.2852 2.04597 11.2208C0.669444 11.2208 0.669445 14.444 2.00425 14.5084Z" fill="currentColor"/>
                     <path className="bar pointer-cursor" d="M0.995954 25.9362C9.58879 26.1296 18.1399 25.8717 26.7328 25.2915C29.1521 25.0981 31.5714 24.9692 33.9908 24.7113C35.3256 24.5824 35.3256 21.3592 33.9908 21.4881C25.4397 22.2617 16.8468 22.713 8.2957 22.713C5.87635 22.713 3.45701 22.7129 1.03767 22.6485C-0.338857 22.6485 -0.338856 25.8717 0.995954 25.9362Z" fill="currentColor"/>
                 </svg>
-            </button>
+            </div>
 
-            <div className={`navigation ${isOpen ? 'active' : ''}`}>
+            <div className={`navigation no-select ${isOpen ? 'active' : ''}`}>
                 <nav>
-                    <ul>
-                        <li className="navigation-item pointer-cursor">Projects</li>
-                        <li className="navigation-item pointer-cursor">Work</li>
-                        <li className="navigation-item pointer-cursor">About</li>
-                        <li className="navigation-item pointer-cursor">Contact</li>
-                    </ul>
+                    <div>
+                        <ul>
+                            <li className="navigation-item"><a>Projects</a></li>
+                            <li className="navigation-item"><a>Work</a></li>
+                            <li className="navigation-item"><a>About</a></li>
+                            <li className="navigation-item"><a>Contact</a></li>
+                        </ul>
+                    </div>
                     <div className="footer">
                         <div className="footer-item">
                             <a id="resume" href="#" download="Minh Pham - Resume.pdf">RESUME</a>
@@ -116,11 +119,11 @@ const GlitchText: React.FC<GlitchTextProps> = ({ text, className = "", style }) 
 // Furniture Section Component
 const FurnitureSection: React.FC<FurnitureSectionProps> = ({ id, title, arrowSrc, outlineSrc, coloredSrc }) => {
     return (
-        <div id={id} className={id}>
+        <div id={id} className="no-select">
             <h2 id={`${id}-title`}>{title}</h2>
             <img src={arrowSrc} id={`${id}-arrow`} alt="" />
-            <img className="no-select" id={`${id}-outline`} src={outlineSrc} alt="" />
-            <img className="no-select" id={`${id}-colored`} src={coloredSrc} alt="" />
+            <img className={`${id} no-select outline`} id={`${id}-outline`} src={outlineSrc} alt="" />
+            <img className={`${id} no-select colored`} id={`${id}-colored`} src={coloredSrc} alt="" />
         </div>
     );
 };
@@ -161,6 +164,322 @@ const MinhPortfolio: React.FC = () => {
 
     return (
         <div>
+            <style jsx>{`
+                @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@800&display=swap');
+
+                body {
+                    font-family: 'Poppins', sans-serif;
+                    margin: 0;
+                    overflow: hidden;
+                    color: white;
+                }
+
+                * {
+                    cursor: default;
+                }
+
+                .no-select {
+                    user-select: none;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
+                }
+
+                h1 {
+                    z-index: 1;
+                    font-family: 'Cubano', sans-serif;
+                    color: white;
+                    font-size: 100px;
+                    text-align: center;
+                    margin: 0;
+                }
+
+                h1:hover {
+                    background-color: white;
+                    color: black;
+                }
+
+                .glitch {
+                    color: white;
+                }
+
+                .glitch:hover {
+                    background-color: white;
+                    color: black;
+                }
+
+                h2 {
+                    z-index: 1;
+                    font-family: 'Cubano', sans-serif;
+                    font-size: 2.3em;
+                    margin: 0;
+                }
+
+                p {
+                    z-index: 1;
+                }
+
+                #hero {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100vh;
+                    background-color: black;
+                    flex-direction: column;
+                }
+
+                .hero-text h1 {
+                    font-size: 36px;
+                    margin-bottom: 20px;
+                }
+
+                .hero-text p {
+                    font-size: 18px;
+                    color: gray;
+                }
+
+                .section h2 {
+                    font-size: 2.5em;
+                    margin-bottom: 15px;
+                }
+
+                .section p {
+                    line-height: 1.625em;
+                    margin: 0 auto;
+                    max-width: 480px;
+                }
+
+                footer {
+                    text-align: center;
+                }
+
+                button {
+                    z-index: 1;
+                }
+
+                button span {
+                    position: absolute;
+                    border-radius: 50%;
+                    background-color: rgba(0, 0, 0, 0.3);
+                    width: 100px;
+                    height: 100px;
+                    margin-top: 50px;
+                    margin-left: 50px;
+                    animation: ripple 1s;
+                    opacity: 0;
+                }
+
+                @keyframes ripple {
+                    from {
+                        opacity: 1;
+                        transform: scale(0);
+                    }
+                    to {
+                        opacity: 0;
+                        transform: scale(10);
+                    }
+                }
+
+                @keyframes rotate {
+                    from {
+                        rotate: 0deg;
+                    }
+                    to {
+                        rotate: 360deg;
+                    }
+                }
+
+                #blob {
+                    z-index: 0;
+                    height: 500px;
+                    aspect-ratio: 1;
+                    position: absolute;
+                    left: 50%;
+                    top: 50%;
+                    translate: -50% -50%;
+                    border-radius: 50%;
+                    background: white linear-gradient(to right, #f1d47c, #6e1320);
+                    animation: rotate 20s infinite;
+                    filter: blur(200px);
+                }
+
+                .hamburger {
+                    position: fixed;
+                    top: 20px;
+                    left: 20px;
+                    z-index: 1000;
+                    cursor: pointer;
+                    color: white;
+                }
+
+                .navigation {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.95);
+                    z-index: 999;
+                    display: none;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .navigation.active {
+                    display: flex;
+                }
+
+                .navigation nav {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    height: 100%;
+                    justify-content: space-between;
+                    padding: 100px 0;
+                }
+
+                .navigation ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .navigation-item {
+                    margin: 20px 0;
+                    font-size: 2rem;
+                    color: white;
+                    font-family: 'Cubano', sans-serif;
+                    cursor: pointer;
+                }
+
+                .navigation-item:hover {
+                    text-decoration: line-through;
+                    color: #C69D70;
+                    transition: text-decoration 0.1s;
+                    transition-delay: 0.1s;
+                }
+
+                #resume {
+                    color: #C69D70;
+                }
+
+                #resume:hover {
+                    color: white;
+                    background-color: #C69D70;
+                    transition: background-color 0.1s, color 0.1s;
+                    transition-delay: 0.1s;
+                }
+
+                .footer {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 20px;
+                }
+
+                #socials {
+                    display: flex;
+                    gap: 20px;
+                }
+
+                .social {
+                    color: white;
+                    cursor: pointer;
+                }
+
+                .social:hover {
+                    color: #C69D70;
+                }
+
+                #overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 998;
+                    display: none;
+                }
+
+                #overlay.active {
+                    display: block;
+                }
+
+                .carpet {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    z-index: 1;
+                }
+
+                /* Furniture sections - hidden on mobile */
+                @media (max-width: 1024px) {
+                    #about, #work, #projects, #contact {
+                        display: none;
+                    }
+                }
+
+                /* Furniture positioning */
+                #about {
+                    position: absolute;
+                    top: 20%;
+                    right: 10%;
+                    z-index: 2;
+                }
+
+                #work {
+                    position: absolute;
+                    top: 60%;
+                    left: 10%;
+                    z-index: 2;
+                }
+
+                #projects {
+                    position: absolute;
+                    top: 40%;
+                    left: 15%;
+                    z-index: 2;
+                }
+
+                #contact {
+                    position: absolute;
+                    top: 70%;
+                    right: 15%;
+                    z-index: 2;
+                }
+
+                /* Furniture hover effects */
+                .about.outline, .work.outline, .projects.outline, .contact.outline {
+                    opacity: 1;
+                    transition: opacity 0.3s;
+                }
+
+                .about.colored, .work.colored, .projects.colored, .contact.colored {
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                }
+
+                #about:hover .outline,
+                #work:hover .outline,
+                #projects:hover .outline,
+                #contact:hover .outline {
+                    opacity: 0;
+                }
+
+                #about:hover .colored,
+                #work:hover .colored,
+                #projects:hover .colored,
+                #contact:hover .colored {
+                    opacity: 1;
+                }
+
+                .pointer-cursor {
+                    cursor: pointer;
+                }
+            `}</style>
+
             <div id="blob" ref={blobRef} className="no-select"></div>
 
             <Navigation isOpen={navOpen} onToggle={toggleNav} />
@@ -177,7 +496,7 @@ const MinhPortfolio: React.FC = () => {
                 />
             </div>
 
-            <img rel="preload" className="carpet no-select" src="/assets/carpet.svg" alt="" />
+            <img className="carpet no-select" src="/assets/carpet.svg" alt="" />
 
             <FurnitureSection
                 id="about"
@@ -211,12 +530,13 @@ const MinhPortfolio: React.FC = () => {
                 coloredSrc="/assets/contact-colored.svg"
             />
 
-            <div id="hero" style={{backgroundColor: 'black'}}>
-                <h3 style={{fontFamily: 'Poppins, sans-serif', fontSize: '1.5rem', transform: 'translateY(-4rem)', color: 'white'}}>
+            <div id="hero">
+                <h3 style={{fontFamily: 'Poppins, sans-serif', fontSize: '1.5rem', transform: 'translateY(-4rem)'}}>
                     Hello, my name is
                 </h3>
                 <GlitchText
                     text="Minh Pham"
+                    className="glitch"
                     style={{margin: 0, transform: 'translateY(-50%)'}}
                 />
             </div>

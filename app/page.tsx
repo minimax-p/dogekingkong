@@ -1,4 +1,4 @@
-import MinhPortfolio from "@/app/homePage";
+import MinhPortfolio from "@/components/MinhPortfolio";
 
 export default function Home() {
   return <MinhPortfolio />
