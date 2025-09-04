@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { usePathname } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { ThemeProvider } from "@/components/theme-provider"
 
@@ -13,13 +13,7 @@ export default function ClientLayout({
     children: React.ReactNode
 }) {
     const pathname = usePathname()
-    const [isAnimating, setIsAnimating] = useState(false)
-
-    useEffect(() => {
-        setIsAnimating(true)
-        const timer = setTimeout(() => setIsAnimating(false), 1000)
-        return () => clearTimeout(timer)
-    }, [pathname])
+    useEffect(() => {}, [pathname])
 
     return (
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
