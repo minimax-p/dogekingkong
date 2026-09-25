@@ -72,6 +72,9 @@ button {
 }
 
 .stage {
+  /* Room scale, shared by the room and the hero (see "The room" below) */
+  --room-w: min(100vw, 180vh);
+  --u: calc(var(--room-w) / 1440);
   position: relative;
   height: 100vh;
   height: 100dvh;
@@ -81,7 +84,7 @@ button {
 /* Hero */
 #hero {
   position: relative;
-  z-index: 1;
+  z-index: 3; /* above the room, so the name wins where it meets a drawing's empty corner */
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -116,6 +119,12 @@ button {
 .glitch:hover {
   background-color: var(--fg);
   color: var(--bg);
+}
+
+.hero-tagline {
+  margin: 1.25rem 0 0;
+  font-size: 1.05rem;
+  color: var(--muted);
 }
 
 .hero-links {
@@ -308,8 +317,6 @@ button {
  * taller than the space below the name (the 180vh cap).
  */
 .room {
-  --room-w: min(100vw, 180vh);
-  --u: calc(var(--room-w) / 1440);
   position: absolute;
   left: 50%;
   bottom: 0;
@@ -522,8 +529,38 @@ button {
   font-size: 1.1rem;
 }
 
-.panel-muted {
-  color: var(--muted);
+.about-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.about-photo {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent);
+}
+
+.panel-body .about-tagline {
+  margin: 0;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.inline-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+
+.inline-link:hover {
+  color: var(--accent);
 }
 
 .panel-heading {
@@ -561,9 +598,8 @@ button {
   font-size: 0.85rem;
 }
 
-.entry-headline {
-  margin-top: 0.5rem;
-  font-style: italic;
+.entry-label {
+  margin: 1rem 0 0.4rem;
 }
 
 .entry-points {
@@ -664,9 +700,31 @@ button {
   text-decoration: underline;
 }
 
+.contact-email-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.copy-button {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.copy-button:hover {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
 .contact-email {
   display: inline-block;
-  margin: 0.5rem 0 1.5rem;
   font-weight: 600;
   font-size: clamp(1.05rem, 3.4vw, 1.45rem);
   color: var(--fg);
@@ -705,6 +763,17 @@ button {
 
 .resume-button:hover {
   background: #ffffff;
+}
+
+/*
+ * On short screens, lift the hero so the name and tagline stay clear of the
+ * Work label, whose top sits 310 design px above the floor. 250px covers the
+ * hero's own height plus a gap.
+ */
+@media (min-width: 1024px) {
+  #hero {
+    padding-bottom: max(6vh, calc(250px - 100vh + 620 * var(--u)));
+  }
 }
 
 /* Small screens: the room gets too small to use, so show text links instead */

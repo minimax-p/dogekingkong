@@ -1,5 +1,5 @@
 // Everything the site says lives here — edit this file to update your portfolio.
-// Content was drafted from public/resume.pdf; tweak wording freely.
+// Content comes from minh-pham-portfolio (the simpler site) and public/resume.pdf.
 
 export type SectionId = "projects" | "work" | "about" | "contact";
 
@@ -12,6 +12,11 @@ export const SECTION_TITLES: Record<SectionId, string> = {
     contact: "Contact",
 };
 
+export const PROFILE = {
+    tagline: "Data Science Student @ Fei Tian College",
+    photo: "/assets/photos/profile.jpg",
+};
+
 export const RESUME_URL = "/resume.pdf";
 
 export const SOCIALS = {
@@ -21,24 +26,50 @@ export const SOCIALS = {
     github: "https://github.com/minimax-p",
 };
 
+export type Link = { label: string; href: string };
+
 export const ABOUT = {
     intro: [
-        "I'm a Data Science major with a software development background and a soft spot for UI/UX design.",
-        "Two internships and a startup later, I've worked across front-end, back-end and databases — and led a team of six to ship a mobile app.",
+        "I'm a Data Science major with extensive software development experience spanning mobile app development, test automation, and full-stack technologies.",
+        "With four internship experiences including recent roles as a Software Engineer at Stealth and Mobile Developer at Ticketingbox Inc, I specialize in cross-platform development, automated testing frameworks, and API integration. I have built complete mobile applications from scratch and implemented enterprise-level testing infrastructure.",
     ],
-    offline: "Off the keyboard you'll usually find me with a guitar or a basketball.",
+    // Rendered as: before + link + after
+    outside: {
+        before: "Outside of tech, I'm",
+        link: {
+            label: "founder and team captain",
+            href: "https://www.linkedin.com/feed/update/urn:li:activity:7312539809267257347/",
+        } as Link,
+        after: "for our college badminton team and enjoy staying active at the gym. I also play classical guitar and clarinet, love karaoke, and am always up for good boba.",
+    },
     education: {
-        school: "Fei Tian College Middletown",
+        school: "Fei Tian College",
+        url: "https://feitian.edu/",
         degree: "B.S. in Data Science",
-        dates: "Sep 2023 – May 2026",
-        details: [
-            "GPA 3.58 · Dean's List (Fall 2023, Spring 2024, Fall 2024)",
-            "Data Mining, Data Inference, Data Visualization, Data Structures & Algorithms, Database Systems, Front-End Web Development",
+        dates: "Fall 2023 – Spring 2026",
+        highlights: ["GPA 3.59", "Dean's List · 4 consecutive semesters"],
+        coursework: [
+            "Machine Learning (ongoing)",
+            "Data Mining",
+            "Data Inference",
+            "Data Visualization",
+            "Probability Theory and Methods",
+            "Data Structures and Algorithms",
+            "Database Systems",
+            "Front-End Web Development",
+        ],
+        leadership: [
+            "Founder & Team Captain, Badminton Team",
+            "Co-Founder & Vice President, Badminton Club",
         ],
     },
     skills: [
-        { group: "Languages & frameworks", items: ["React Native", "Python", "R", "JavaScript", "SQL", "HTML", "CSS", "Java", "Dart", "Swift"] },
-        { group: "Tools", items: ["Git / GitHub", "VS Code", "IntelliJ", "Xcode", "MySQL Workbench"] },
+        { group: "Core competencies", items: ["Software Engineering", "Mobile Development", "Data Science", "Machine Learning", "Statistical Analysis", "UI/UX Design"] },
+        { group: "Languages", items: ["Python", "JavaScript", "R", "Java", "Swift", "Dart", "SQL", "HTML", "CSS"] },
+        { group: "Data science & ML", items: ["Pandas", "NumPy", "Matplotlib"] },
+        { group: "Mobile & web", items: ["React Native", "Flutter"] },
+        { group: "Cloud, DevOps & testing", items: ["Git", "GitHub", "Docker", "AWS", "Playwright"] },
+        { group: "Databases", items: ["MySQL", "SQLite"] },
         { group: "Design", items: ["Figma", "Adobe Illustrator"] },
     ],
 };
@@ -46,47 +77,59 @@ export const ABOUT = {
 export type WorkEntry = {
     role: string;
     org: string;
-    location: string;
+    orgUrl?: string;
+    location?: string;
     dates: string;
-    headline: string;
     points: string[];
 };
 
 export const WORK: WorkEntry[] = [
     {
-        role: "Independent Study Program",
-        org: "Stealth Startup",
+        role: "Software Engineer Intern",
+        org: "Stealth",
         location: "Middletown, NY",
-        dates: "Oct 2024 – Present",
-        headline: "Building a cross-platform app with React Native / Expo",
+        dates: "Jun – Aug 2025",
         points: [
-            "Led the front-end migration from Ionic to React Native/Expo, implementing 80% of features including barcode scanning and SQLite integration.",
-            "Designed cross-platform UI components and the app's state architecture without dedicated design resources.",
-            "Adopted Git best practices for tracking changes and collaborating efficiently.",
+            "Built a Playwright testing pipeline automating 87 tests across 8 platforms and 8 languages, enabling daily testing that would take 30+ hours by hand.",
+            "Deployed it on a Linux server with scheduled 4am runs, automated reporting, and email notifications delivered before the team arrived.",
+            "Caught 3 critical production bugs undetectable through manual QA.",
         ],
     },
     {
-        role: "NASA Research Associate — Team Lead",
-        org: "Northern Horizon",
-        location: "Middletown, NY",
-        dates: "May – Jul 2024",
-        headline: "Brought the ESP website to mobile with Flutter",
+        role: "Mobile Developer Intern",
+        org: "Ticketingbox Inc.",
+        orgUrl: "https://www.ticketingbox.com/",
+        location: "Remote",
+        dates: "Oct 2024 – Mar 2025",
         points: [
-            "Led a team of 6: assigned tasks, mentored juniors on FlutterFlow and kept development and testing inside a 3-week timeline.",
-            "Built 3 custom Flutter widgets, ran 80% of the tests and fixed 30% of the bugs.",
-            "Designed and prototyped the app in Figma and Illustrator.",
+            "Built a complete mobile app from scratch in 5 months after the legacy Ionic system failed.",
+            "Integrated 15+ deprecated API endpoints with manager guidance, resolving JSON-RPC gateway issues.",
+            "Designed an offline-capable SQLite database enabling real-time barcode validation without internet connectivity.",
+            "Implemented a multi-format barcode scanner supporting QR codes, Code 128, and UPC with real-time ticket validation.",
         ],
     },
     {
-        role: "NASA Research Associate",
-        org: "Northern Horizon",
+        role: "Team Lead Intern",
+        org: "NASA",
+        orgUrl: "https://www.nasa.gov/",
         location: "Middletown, NY",
-        dates: "May – Jul 2023",
-        headline: "Earthquake Signal Precursor (ESP) web platform",
+        dates: "Jun – Aug 2023",
         points: [
-            "Built a dashboard visualising real-time magnetometer data with NASA WorldWind, dygraphs and Bootstrap.",
-            "Parameterised 40+ SQL calls to prevent injection and consolidated 20+ server routes.",
-            "Moved two-factor auth server-side with an OTP session API, and designed the SQL schema for users and settings.",
+            "Led a 6-person development team through a 5-week Flutter project, coordinating the Git workflow and managing development and test phases.",
+            "Performed 80% of testing and resolved 30% of critical bugs.",
+            "Designed and prototyped the app in Figma.",
+        ],
+    },
+    {
+        role: "Full-stack Engineer Intern",
+        org: "NASA",
+        orgUrl: "https://www.nasa.gov/",
+        location: "Middletown, NY",
+        dates: "Jun – Aug 2022",
+        points: [
+            "Designed a SQL database for user authentication and secured a legacy codebase by parameterizing 40+ SQL calls against injection attacks.",
+            "Implemented a server-side OTP authentication API to strengthen two-factor authentication.",
+            "Built a dashboard displaying real-time magnetometer data using NASA's WorldWind, dygraphs, and Bootstrap.",
         ],
     },
 ];
@@ -96,33 +139,43 @@ export type Project = {
     year: string;
     blurb: string;
     tags: string[];
-    link?: { label: string; href: string };
+    link?: Link;
 };
 
 export const PROJECTS: Project[] = [
     {
-        name: "ESP Magnetometer Dashboard",
+        name: "Nightly E2E Test Pipeline",
+        year: "2025",
+        blurb: "87 Playwright tests across 8 platforms and 8 languages, run every morning at 4am on a Linux server with automated reports and email alerts. It caught 3 critical production bugs that manual QA missed.",
+        tags: ["Playwright", "Linux", "Automation"],
+    },
+    {
+        name: "Ticketingbox Scanner App",
+        year: "2024 – 25",
+        blurb: "A mobile ticketing app rebuilt from scratch after the legacy Ionic system failed — offline SQLite storage and real-time validation of QR, Code 128 and UPC barcodes.",
+        tags: ["React Native", "SQLite", "Barcode scanning"],
+    },
+    {
+        name: "ESP Mobile",
         year: "2023",
+        blurb: "NASA's Earthquake Signal Precursor website brought to mobile — designed in Figma and built in Flutter by a six-person team I led.",
+        tags: ["Flutter", "FlutterFlow", "Figma"],
+    },
+    {
+        name: "ESP Magnetometer Dashboard",
+        year: "2022",
         blurb: "A real-time dashboard for magnetometer readings from earthquake-precursor stations, mapped with NASA WorldWind.",
         tags: ["JavaScript", "NASA WorldWind", "dygraphs", "SQL"],
     },
     {
-        name: "ESP Mobile",
-        year: "2024",
-        blurb: "The ESP website rebuilt as a mobile app — designed in Figma, built in Flutter by a team of six in three weeks.",
-        tags: ["Flutter", "FlutterFlow", "Figma"],
-    },
-    {
-        name: "Cross-Platform Startup App",
-        year: "2024 – now",
-        blurb: "A cross-platform app with barcode scanning and offline SQLite storage, migrated from Ionic to React Native.",
-        tags: ["React Native", "Expo", "SQLite"],
-    },
-    {
         name: "This Room",
-        year: "2025",
+        year: "2024 – 26",
         blurb: "My portfolio — a hand-illustrated room where every piece of furniture opens a part of my life.",
         tags: ["Next.js", "React", "Illustrator"],
         link: { label: "Source", href: "https://github.com/minimax-p/dogekingkong" },
     },
 ];
+
+export const CONTACT = {
+    intro: "Thanks for the visit! Email is the best way to reach me — or find me on LinkedIn and GitHub.",
+};

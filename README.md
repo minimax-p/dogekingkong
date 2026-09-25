@@ -51,15 +51,22 @@ lib/
   content.ts          ALL the words on the site: projects, jobs, about, links
 public/
   resume.pdf          the résumé people download
-  assets/             drawings, fonts and the menu texture
+  assets/             drawings, fonts, profile photo and the menu texture
 ```
 
 ## Common edits
 
 ### Change what the site says
-Everything is in **`lib/content.ts`**. To add a project, copy one of the blocks in `PROJECTS`
-and change the text. Jobs work the same way in `WORK`. The About text and skills are in `ABOUT`,
-and your email and social links are in `SOCIALS`.
+Everything is in **`lib/content.ts`**:
+
+- `PROFILE`: the tagline under your name and the photo in the About panel
+- `ABOUT`: bio, hobbies, education and skills
+- `WORK`: jobs, newest first
+- `PROJECTS`: project cards
+- `SOCIALS` and `CONTACT`: email, links and the Contact panel intro
+
+To add a job or project, copy one of the existing blocks and change the text. To swap the photo,
+replace `public/assets/photos/profile.jpg` with a square image around 480×480.
 
 ### Update the résumé
 Replace `public/resume.pdf` with the new file, keeping the same name. The menu and the Contact

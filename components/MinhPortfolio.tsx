@@ -4,7 +4,7 @@ import GlitchText from "@/components/GlitchText";
 import Navigation from "@/components/Navigation";
 import Room from "@/components/Room";
 import SectionPanel from "@/components/SectionPanel";
-import { SECTION_ORDER, SECTION_TITLES, type SectionId } from "@/lib/content";
+import { PROFILE, SECTION_ORDER, SECTION_TITLES, type SectionId } from "@/lib/content";
 
 const MinhPortfolio: React.FC = () => {
     const [navOpen, setNavOpen] = useState(false);
@@ -41,6 +41,7 @@ const MinhPortfolio: React.FC = () => {
             <div id="hero">
                 <p className="hero-hello">Hello, my name is</p>
                 <GlitchText text="Minh Pham" />
+                <p className="hero-tagline">{PROFILE.tagline}</p>
                 {/* On small screens the room is hidden, so offer plain links instead */}
                 <ul className="hero-links">
                     {SECTION_ORDER.map((id) => (

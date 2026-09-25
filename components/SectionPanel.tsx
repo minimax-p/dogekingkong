@@ -1,9 +1,11 @@
-/* eslint-disable @next/next/no-img-element -- hand-drawn SVG illustrations; next/image adds nothing for SVGs */
+/* eslint-disable @next/next/no-img-element -- SVG illustrations and a pre-sized photo; next/image adds nothing here */
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     ABOUT,
+    CONTACT,
+    PROFILE,
     PROJECTS,
     RESUME_URL,
     SECTION_ORDER,
@@ -18,47 +20,73 @@ interface SectionPanelProps {
     onClose: () => void;
 }
 
-const AboutContent = () => (
-    <>
-        {ABOUT.intro.map((p) => (
-            <p key={p} className="panel-lead">{p}</p>
-        ))}
-        <p className="panel-muted">{ABOUT.offline}</p>
+const ExternalLink: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className, children }) => (
+    <a className={className} href={href} target="_blank" rel="noopener noreferrer">{children}</a>
+);
 
-        <h3 className="panel-heading">Education</h3>
-        <div className="entry">
-            <div className="entry-top">
-                <span className="entry-title">{ABOUT.education.school}</span>
-                <span className="entry-date">{ABOUT.education.dates}</span>
+const AboutContent = () => {
+    const { intro, outside, education, skills } = ABOUT;
+    return (
+        <>
+            <div className="about-profile">
+                <img className="about-photo" src={PROFILE.photo} alt="Minh Pham" width={96} height={96} />
+                <p className="about-tagline">{PROFILE.tagline}</p>
             </div>
-            <div className="entry-sub">{ABOUT.education.degree}</div>
-            <ul className="entry-points">
-                {ABOUT.education.details.map((d) => <li key={d}>{d}</li>)}
-            </ul>
-        </div>
+            {intro.map((p) => (
+                <p key={p} className="panel-lead">{p}</p>
+            ))}
+            <p>
+                {outside.before}{" "}
+                <ExternalLink className="inline-link" href={outside.link.href}>{outside.link.label}</ExternalLink>{" "}
+                {outside.after}
+            </p>
 
-        <h3 className="panel-heading">Toolbox</h3>
-        {ABOUT.skills.map(({ group, items }) => (
-            <div key={group} className="skill-group">
-                <div className="skill-label">{group}</div>
+            <h3 className="panel-heading">Education</h3>
+            <div className="entry">
+                <div className="entry-top">
+                    <ExternalLink className="entry-title inline-link" href={education.url}>{education.school}</ExternalLink>
+                    <span className="entry-date">{education.dates}</span>
+                </div>
+                <div className="entry-sub">{education.degree} · {education.highlights.join(" · ")}</div>
+
+                <div className="skill-label entry-label">Relevant coursework</div>
                 <ul className="chips">
-                    {items.map((s) => <li key={s} className="chip">{s}</li>)}
+                    {education.coursework.map((c) => <li key={c} className="chip">{c}</li>)}
+                </ul>
+
+                <div className="skill-label entry-label">Leadership & activities</div>
+                <ul className="entry-points">
+                    {education.leadership.map((l) => <li key={l}>{l}</li>)}
                 </ul>
             </div>
-        ))}
-    </>
-);
+
+            <h3 className="panel-heading">Toolbox</h3>
+            {skills.map(({ group, items }) => (
+                <div key={group} className="skill-group">
+                    <div className="skill-label">{group}</div>
+                    <ul className="chips">
+                        {items.map((s) => <li key={s} className="chip">{s}</li>)}
+                    </ul>
+                </div>
+            ))}
+        </>
+    );
+};
 
 const WorkContent = () => (
     <ol className="timeline">
         {WORK.map((job) => (
             <li key={`${job.org}-${job.dates}`} className="entry">
                 <div className="entry-top">
-                    <span className="entry-title">{job.org}</span>
+                    <span className="entry-title">{job.role}</span>
                     <span className="entry-date">{job.dates}</span>
                 </div>
-                <div className="entry-sub">{job.role} · {job.location}</div>
-                <div className="entry-headline">{job.headline}</div>
+                <div className="entry-sub">
+                    {job.orgUrl
+                        ? <ExternalLink className="inline-link" href={job.orgUrl}>{job.org}</ExternalLink>
+                        : job.org}
+                    {job.location && ` · ${job.location}`}
+                </div>
                 <ul className="entry-points">
                     {job.points.map((p) => <li key={p}>{p}</li>)}
                 </ul>
@@ -80,29 +108,49 @@ const ProjectsContent = () => (
                     {project.tags.map((t) => <li key={t} className="chip">{t}</li>)}
                 </ul>
                 {project.link && (
-                    <a className="text-link" href={project.link.href} target="_blank" rel="noopener noreferrer">
-                        {project.link.label} ↗
-                    </a>
+                    <ExternalLink className="text-link" href={project.link.href}>{project.link.label} ↗</ExternalLink>
                 )}
             </li>
         ))}
     </ul>
 );
 
-const ContactContent = () => (
-    <>
-        <p className="panel-lead">
-            Have a project, a role, or just want to talk music and data? My inbox is open.
-        </p>
-        <a className="contact-email" href={`mailto:${SOCIALS.email}`}>{SOCIALS.email}</a>
-        <ul className="contact-links">
-            <li><a className="text-link" href={SOCIALS.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></li>
-            <li><a className="text-link" href={SOCIALS.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a></li>
-            <li><a className="text-link" href={SOCIALS.instagram} target="_blank" rel="noopener noreferrer">Instagram ↗</a></li>
-        </ul>
-        <a className="resume-button" href={RESUME_URL} download="Minh Pham - Resume.pdf">Download résumé</a>
-    </>
-);
+const ContactContent = () => {
+    const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        if (!copied) return;
+        const t = setTimeout(() => setCopied(false), 2000);
+        return () => clearTimeout(t);
+    }, [copied]);
+
+    const copyEmail = async () => {
+        try {
+            await navigator.clipboard.writeText(SOCIALS.email);
+            setCopied(true);
+        } catch {
+            window.location.href = `mailto:${SOCIALS.email}`;
+        }
+    };
+
+    return (
+        <>
+            <p className="panel-lead">{CONTACT.intro}</p>
+            <div className="contact-email-row">
+                <a className="contact-email" href={`mailto:${SOCIALS.email}`}>{SOCIALS.email}</a>
+                <button type="button" className="copy-button" onClick={copyEmail} aria-live="polite">
+                    {copied ? "Copied!" : "Copy"}
+                </button>
+            </div>
+            <ul className="contact-links">
+                <li><ExternalLink className="text-link" href={SOCIALS.linkedin}>LinkedIn ↗</ExternalLink></li>
+                <li><ExternalLink className="text-link" href={SOCIALS.github}>GitHub ↗</ExternalLink></li>
+                <li><ExternalLink className="text-link" href={SOCIALS.instagram}>Instagram ↗</ExternalLink></li>
+            </ul>
+            <a className="resume-button" href={RESUME_URL} download="Minh Pham - Resume.pdf">Download résumé</a>
+        </>
+    );
+};
 
 const CONTENT: Record<SectionId, React.FC> = {
     about: AboutContent,
