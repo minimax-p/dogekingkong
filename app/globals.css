@@ -563,6 +563,11 @@ button {
   color: var(--accent);
 }
 
+span.inline-link {
+  text-decoration-style: dotted;
+  cursor: default;
+}
+
 /* Clip that follows the cursor over a GifHoverLink (centred, just above the pointer) */
 .gif-hover {
   position: fixed;
