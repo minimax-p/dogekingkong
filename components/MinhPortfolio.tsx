@@ -32,11 +32,11 @@ const MinhPortfolio: React.FC = () => {
 
     return (
         <main className="stage">
-            <div id="blob" ref={blobRef} className="no-select" aria-hidden="true" />
+            <div id="blob" ref={blobRef} aria-hidden="true" />
 
             <Navigation isOpen={navOpen} onToggle={toggleNav} onSelect={openSection} />
 
-            <div id="overlay" onClick={toggleNav} className={`no-select ${navOpen ? "active" : ""}`} aria-hidden="true" />
+            <div id="overlay" onClick={toggleNav} className={navOpen ? "active" : ""} aria-hidden="true" />
 
             <div id="hero">
                 <p className="hero-hello">Hello, my name is</p>

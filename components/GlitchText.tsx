@@ -40,7 +40,7 @@ const GlitchText: React.FC<GlitchTextProps> = ({ text, className = "" }) => {
     };
 
     return (
-        <h1 ref={textRef} className={`glitch ${className}`} onMouseOver={glitch} data-value={text}>
+        <h1 ref={textRef} className={`glitch ${className}`} onMouseOver={glitch}>
             {text}
         </h1>
     );

@@ -1,7 +1,7 @@
 /* Fonts */
 @font-face {
   font-family: "Cubano";
-  src: url("../public/assets/Cubano.otf") format("opentype");
+  src: url("../public/assets/fonts/Cubano.otf") format("opentype");
   font-display: swap;
 }
 
@@ -169,21 +169,20 @@ button {
   width: 36px;
   height: 26px;
   transform: translateY(-50%);
-  transition: all 0.3s ease-in;
   z-index: 60;
   display: flex;
 }
 
 .bar {
   fill: var(--fg);
-  transition: all 0.3s ease-in;
+  transition: fill 0.3s ease-in;
 }
 
-.svg {
-  transition: 0.3s ease-in;
+.hamburger svg {
+  transition: transform 0.3s ease-in;
 }
 
-.hamburger.open .svg {
+.hamburger.open svg {
   transform: rotate(-90deg);
 }
 

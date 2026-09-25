@@ -1,5 +1,5 @@
 // Everything the site says lives here — edit this file to update your portfolio.
-// Content was drafted from the resume in /public; tweak wording freely.
+// Content was drafted from public/resume.pdf; tweak wording freely.
 
 export type SectionId = "projects" | "work" | "about" | "contact";
 
@@ -12,7 +12,7 @@ export const SECTION_TITLES: Record<SectionId, string> = {
     contact: "Contact",
 };
 
-export const RESUME_URL = "/Minh%20Pham%20-%20Resume%203_8_2025.pdf";
+export const RESUME_URL = "/resume.pdf";
 
 export const SOCIALS = {
     email: "phamhuunhatminh221b@gmail.com",
