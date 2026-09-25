@@ -563,6 +563,20 @@ button {
   color: var(--accent);
 }
 
+/* Clip that follows the cursor over a GifHoverLink (centred, just above the pointer) */
+.gif-hover {
+  position: fixed;
+  z-index: 90;
+  width: 192px;
+  height: 108px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 20px));
+}
+
 .panel-heading {
   font-family: "Cubano", sans-serif;
   font-weight: normal;

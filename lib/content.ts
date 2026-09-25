@@ -27,6 +27,8 @@ export const SOCIALS = {
 };
 
 export type Link = { label: string; href: string };
+// `gif` (optional) is a short clip that follows the cursor while the link is hovered
+export type HoverLink = Link & { gif?: string };
 
 export const ABOUT = {
     intro: [
@@ -39,7 +41,8 @@ export const ABOUT = {
         link: {
             label: "founder and team captain",
             href: "https://www.linkedin.com/feed/update/urn:li:activity:7312539809267257347/",
-        } as Link,
+            gif: "/assets/gifs/badminton-smash.webp",
+        } as HoverLink,
         after: "for our college badminton team and enjoy staying active at the gym. I also play classical guitar and clarinet, love karaoke, and am always up for good boba.",
     },
     education: {

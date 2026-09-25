@@ -2,6 +2,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import GifHoverLink from "@/components/GifHoverLink";
 import {
     ABOUT,
     CONTACT,
@@ -37,7 +38,9 @@ const AboutContent = () => {
             ))}
             <p>
                 {outside.before}{" "}
-                <ExternalLink className="inline-link" href={outside.link.href}>{outside.link.label}</ExternalLink>{" "}
+                {outside.link.gif
+                    ? <GifHoverLink className="inline-link" href={outside.link.href} gif={outside.link.gif}>{outside.link.label}</GifHoverLink>
+                    : <ExternalLink className="inline-link" href={outside.link.href}>{outside.link.label}</ExternalLink>}{" "}
                 {outside.after}
             </p>
 
