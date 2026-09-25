@@ -18,7 +18,7 @@ export const P = {
     dragAir: 0.12,
     grav: 0.32,
     maxFall: 7,
-    jump: 5.6,
+    jump: 6.1,
     jumpCut: 0.45,
     coyote: 6,
     jumpBuf: 6,
@@ -296,6 +296,20 @@ export const updatePlayer = (w: World, inp: Input) => {
             p.jumpCut = true;
         }
         p.vy = Math.min(p.vy + g * (p.state === "attack" ? adt : dt), P.maxFall);
+    }
+
+    // Cooling vents blow you upward
+    for (const z of w.stage.def.zones ?? []) {
+        if (z.kind !== "vent") continue;
+        const x1 = z.x * 16;
+        const x2 = (z.x + z.w) * 16;
+        const y1 = z.y * 16;
+        const y2 = (z.y + z.h) * 16;
+        if (p.x > x1 && p.x < x2 && p.y > y1 && p.y - p.h < y2) {
+            p.vy = Math.max(p.vy - 0.62 * dt, -4.4);
+            p.ground = false;
+            p.airAtk = 0;
+        }
     }
 
     // Wall slide

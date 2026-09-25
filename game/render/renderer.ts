@@ -7,6 +7,10 @@ import { PAL } from "@/game/art/palette";
 import { bakeStage, type Baked } from "@/game/render/env";
 import { drawText, textWidth } from "@/game/render/font";
 import { ANIM_PROPS, drawAnimProp, glow, hexA, R } from "@/game/render/props";
+import { drawSetpiece, SETPIECES } from "@/game/render/setpieces";
+import { blinkOn } from "@/game/world/physics";
+import { bubble, drawSetpieceOver } from "@/game/render/setpieces";
+import { BOSS_QUIPS } from "@/game/world/boss";
 import { DOOR_W } from "@/game/world/physics";
 import { EK, eyeY } from "@/game/world/enemies";
 import { alive } from "@/game/world/world";
@@ -26,6 +30,7 @@ export type HudOpts = {
     clock?: string; // on-screen clock in replays
     reduced: boolean;
     t: number; // real frames, for blinking
+    ghost?: Player | null; // the last attempt, replayed beside you
 };
 
 export const makeLayers = (): { layers: Layers; canvases: HTMLCanvasElement[] } => {
@@ -120,15 +125,21 @@ export const renderWorld = (L: Layers, w: World, o: HudOpts) => {
     }
     g.drawImage(baked.back, -cx, -cy);
     for (const p of w.stage.def.props ?? []) {
-        if (!ANIM_PROPS.has(p.kind)) continue;
+        const anim = ANIM_PROPS.has(p.kind);
+        const set = SETPIECES.has(p.kind);
+        if (!anim && !set) continue;
         const px = p.x * TILE - cx;
         const py = p.y * TILE - cy;
-        if (px < -80 || px > W + 80 || py < -40 || py > H + 80) continue;
-        drawAnimProp(g, p, t, th, px, py);
+        const pw = (p.w ?? 1) * TILE;
+        if (px < -160 - pw || px > W + 160 || py < -60 || py > H + 200) continue;
+        if (anim) drawAnimProp(g, p, t, th, px, py);
+        else drawSetpiece(g, p, w, th, px, py);
     }
     updateDecals(baked, w);
     g.drawImage(baked.decals, -cx, -cy);
     g.drawImage(baked.tiles, -cx, -cy);
+    drawBlinks(g, w, cx, cy, t);
+    drawVents(g, w, cx, cy, t);
     drawDoors(g, w, cx, cy);
     drawExit(g, w, cx, cy, t);
 
@@ -140,6 +151,7 @@ export const renderWorld = (L: Layers, w: World, o: HudOpts) => {
     drawItems(a, w, atlas, t);
     for (const e of w.enemies) if (e.state === "dead") drawEnemy(a, e, atlas, w);
     for (const e of w.enemies) if (e.state !== "dead") drawEnemy(a, e, atlas, w);
+    if (o.ghost) drawGhost(a, o.ghost, atlas);
     drawPlayer(a, w.player, atlas, w);
     drawBullets(a, w, atlas);
     drawParticles(a, w);
@@ -147,13 +159,139 @@ export const renderWorld = (L: Layers, w: World, o: HudOpts) => {
     for (const e of w.enemies) drawEnemyIcons(a, e, atlas, w, t);
     a.drawImage(baked.front, 0, 0);
     a.setTransform(1, 0, 0, 1, 0, 0);
+    // Speech bubbles, over everything
+    for (const p of w.stage.def.props ?? []) if (p.kind === "crew") drawSetpieceOver(a, p, w, p.x * TILE - cx, p.y * TILE - cy);
+    for (const e of w.enemies) {
+        if (e.kind === "boss" && (e.data.quipT ?? 0) > 0 && e.state !== "dead") bubble(a, BOSS_QUIPS[e.data.quip ?? 0] ?? "", e.x - cx, e.y - 34 - cy, PAL.hot);
+    }
 
     // ---- HUD layer
     const h = L.hud;
     h.clearRect(0, 0, W, H);
+    if (w.stage.def.dark) drawDark(h, w, cx, cy);
     if (o.hud) drawHud(h, w, atlas, o);
     if (o.hud && w.cleared && !w.won && o.mode === "play") drawGo(h, w, cx, cy, t);
     if (o.prompt && o.mode === "play") drawPrompt(h, o.prompt, t);
+};
+
+// Code blocks the agent types into platforms: on, flickering, or ghosted out
+const drawBlinks = (g: CanvasRenderingContext2D, w: World, cx: number, cy: number, t: number) => {
+    const bl = w.stage.def.blinks;
+    if (!bl) return;
+    bl.forEach((b, i) => {
+        const on = blinkOn(w, i);
+        const ph = (w.time * 60 + b.offset) % b.period;
+        const warn = !on && ph > b.period - 30;
+        const x = b.x * TILE - cx;
+        const y = b.y * TILE - cy;
+        const wd = b.w * TILE;
+        if (on) {
+            const fading = ph > b.on - 24;
+            R(g, x, y, wd, 4, fading && t % 6 < 3 ? "#1e6a7a" : "#1b3a52");
+            R(g, x, y, wd, 1, PAL.cyan);
+            drawText(g, "{", x - 5, y - 2, PAL.cyan);
+            drawText(g, "}", x + wd, y - 2, PAL.cyan);
+            glow(g, x + wd / 2, y + 2, wd * 0.6, PAL.cyan, 0.18);
+        } else {
+            g.fillStyle = hexA(PAL.cyan, warn && t % 6 < 3 ? 0.6 : 0.18);
+            for (let i2 = 0; i2 < wd; i2 += 4) g.fillRect(x + i2, y, 2, 1);
+        }
+    });
+};
+
+const drawVents = (g: CanvasRenderingContext2D, w: World, cx: number, cy: number, t: number) => {
+    for (const z of w.stage.def.zones ?? []) {
+        const x = z.x * TILE - cx;
+        const y = (z.y + z.h) * TILE - cy;
+        const wd = z.w * TILE;
+        R(g, x, y - 3, wd, 3, "#2c2754");
+        for (let i = 2; i < wd; i += 3) R(g, x + i, y - 3, 1, 3, "#07050f");
+        // Rising air
+        g.fillStyle = "rgba(84,227,255,0.35)";
+        for (let i = 0; i < 10; i++) {
+            const ax = x + ((i * 37) % wd);
+            const ay = y - ((t * 3 + i * 29) % (z.h * TILE));
+            g.fillRect(Math.round(ax), Math.round(ay), 1, 4);
+        }
+    }
+};
+
+// Power's out: everything is dark except your scanner beam, lamps and gunfire
+const drawDark = (h: CanvasRenderingContext2D, w: World, cx: number, cy: number) => {
+    const c = darkCanvas();
+    const g = c.getContext("2d")!;
+    g.globalCompositeOperation = "source-over";
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = "rgba(4,2,10,0.86)";
+    g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = "destination-out";
+    const hole = (x: number, y: number, r: number, a = 1) => {
+        const grad = g.createRadialGradient(x, y, 0, x, y, r);
+        grad.addColorStop(0, `rgba(0,0,0,${a})`);
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        g.fillStyle = grad;
+        g.fillRect(x - r, y - r, r * 2, r * 2);
+    };
+    const p = w.player;
+    const px = p.x - cx;
+    const py = p.y - 14 - cy;
+    hole(px, py, 34, 0.9);
+    if (p.state !== "dead") {
+        // The visor's scanner beam, pointed wherever you aim
+        const len = 150;
+        const spread = 0.42;
+        const grad = g.createRadialGradient(px, py, 4, px, py, len);
+        grad.addColorStop(0, "rgba(0,0,0,0.95)");
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        g.fillStyle = grad;
+        g.beginPath();
+        g.moveTo(px, py);
+        g.arc(px, py, len, p.aim - spread, p.aim + spread);
+        g.closePath();
+        g.fill();
+    }
+    for (const pr of w.stage.def.props ?? []) {
+        if (pr.kind === "emergency" || pr.kind === "light" || pr.kind === "lamp") hole(pr.x * TILE - cx + 3, pr.y * TILE - cy + 6, (pr.w ?? 3) * 14, 0.8);
+        if (pr.kind === "neon" || pr.kind === "sqlite" || pr.kind === "legacy" || pr.kind === "sign") hole(pr.x * TILE - cx + 10, pr.y * TILE - cy - 8, 26, 0.6);
+    }
+    for (const b of w.bullets) hole(b.x - cx, b.y - cy, 14, 0.9);
+    for (const f of w.fx) if (f.kind === "muzzle" || f.kind === "slash") hole(f.x - cx, f.y - cy, f.kind === "muzzle" ? 40 : 30, 1);
+    for (const e of w.enemies) {
+        if (e.state === "dead" || !e.aware || e.kind === "sentry") continue;
+        // Guards carry flashlights once they're onto you
+        const ex = e.x - cx;
+        const ey = e.y - 16 - cy;
+        const grad = g.createRadialGradient(ex, ey, 2, ex, ey, 90);
+        grad.addColorStop(0, "rgba(0,0,0,0.7)");
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        g.fillStyle = grad;
+        g.beginPath();
+        g.moveTo(ex, ey);
+        const a = e.face > 0 ? 0 : Math.PI;
+        g.arc(ex, ey, 90, a - 0.3, a + 0.3);
+        g.closePath();
+        g.fill();
+        hole(ex, ey, 14, 0.5);
+    }
+    for (const l of w.lasers) if (l.on && !l.disabled) for (let y = l.y1; y < l.y2; y += 16) hole(l.x1 - cx, y - cy, 10, 0.6);
+    h.drawImage(c, 0, 0);
+};
+
+let darkC: HTMLCanvasElement | null = null;
+const darkCanvas = () => {
+    if (!darkC) {
+        darkC = document.createElement("canvas");
+        darkC.width = W;
+        darkC.height = H;
+    }
+    return darkC;
+};
+
+const drawGhost = (a: CanvasRenderingContext2D, gp: Player, atlas: ReturnType<typeof getAtlas>) => {
+    const s = atlas[`hh.${gp.anim}`] ?? atlas["hh.idle"];
+    let frame = frameOf(s, gp.animT);
+    if (gp.anim.startsWith("attack")) frame = Math.min(s.r.length - 1, Math.floor((gp.t / 14) * s.r.length));
+    drawSprite(a, s, frame, gp.x, gp.y, gp.face, { tint: PAL.cyan, alpha: 0.28 });
 };
 
 const drawRain = (g: CanvasRenderingContext2D, t: number, reduced: boolean) => {
@@ -212,6 +350,15 @@ const drawDoors = (g: CanvasRenderingContext2D, w: World, cx: number, cy: number
         const h = d.h * TILE;
         // Frame
         R(g, x - 3, y - 2, DOOR_W + 6, 2, "#3d3570");
+        if (w.stage.def.theme === "boxoffice") {
+            // Turnstile: a scanner that reads VALID when you push through
+            R(g, x - 4, y + h - 20, 12, 20, "#2b2550");
+            R(g, x - 3, y + h - 19, 10, 3, d.open ? PAL.pass : PAL.hot);
+            if (!d.open) R(g, x + 2, y + h - 14, 14, 2, "#a9a3d6");
+            else R(g, x + 2, y + h - 14, 2, 10, "#a9a3d6");
+            if (d.open && d.t < 20) drawText(g, "VALID", x - 8, y + h - 30, PAL.pass);
+            continue;
+        }
         if (!d.open) {
             R(g, x, y, DOOR_W, h, "#3d3570");
             R(g, x + 1, y + 1, DOOR_W - 2, h - 2, "#2b2550");
@@ -239,6 +386,21 @@ const drawExit = (g: CanvasRenderingContext2D, w: World, cx: number, cy: number,
 
 const drawLasers = (a: CanvasRenderingContext2D, w: World, t: number) => {
     for (const l of w.lasers) {
+        if (l.y1 === l.y2) {
+            // Horizontal: the boss's floor laser
+            if (l.disabled) continue;
+            const y = Math.round(l.y1);
+            R(a, l.x1 - 4, y - 2, 4, 5, "#2c2754");
+            R(a, l.x2, y - 2, 4, 5, "#2c2754");
+            if (l.on) {
+                R(a, l.x1, y - 1, l.x2 - l.x1, 3, hexA(PAL.hot, 0.55));
+                R(a, l.x1, y, l.x2 - l.x1, 1, t % 4 < 2 ? "#ffffff" : PAL.hotLight);
+            } else if (l.warn) {
+                a.fillStyle = hexA(PAL.hot, t % 6 < 3 ? 0.7 : 0.25);
+                for (let x = l.x1; x < l.x2; x += 4) a.fillRect(x, y, 2, 1);
+            }
+            continue;
+        }
         const x = Math.round(l.x1);
         const y1 = Math.round(l.y1);
         const y2 = Math.round(l.y2);
@@ -295,7 +457,7 @@ const drawItems = (a: CanvasRenderingContext2D, w: World, atlas: ReturnType<type
     }
 };
 
-const enemyKey = (e: Enemy) => {
+const enemyKey = (e: Enemy, w: World) => {
     if (e.kind === "bug" || e.kind === "drone" || e.kind === "sentry" || e.kind === "launcher") {
         if (e.state === "dead") return `${e.kind}.dead`;
         if (e.kind === "bug") return e.state === "leap" ? "bug.leap" : e.aware ? "bug.run" : "bug.idle";
@@ -303,12 +465,15 @@ const enemyKey = (e: Enemy) => {
         if (e.kind === "launcher") return e.anim === "fire" ? "launcher.fire" : "launcher.idle";
         return "drone.idle";
     }
-    if (e.kind === "boss") return `guard.${e.anim}`;
+    if (e.kind === "boss") {
+        const who = w.flags.unmasked ? "minh" : "boss";
+        return `${who}.${e.state === "dead" ? "kneel" : e.anim}`;
+    }
     return `${e.kind}.${e.anim}`;
 };
 
 const drawEnemy = (a: CanvasRenderingContext2D, e: Enemy, atlas: ReturnType<typeof getAtlas>, w: World) => {
-    const key = enemyKey(e);
+    const key = enemyKey(e, w);
     const s = atlas[key] ?? atlas[`${e.kind}.idle`];
     if (!s) {
         R(a, e.x - e.w / 2, e.y - e.h, e.w, e.h, PAL.hot);
@@ -320,8 +485,21 @@ const drawEnemy = (a: CanvasRenderingContext2D, e: Enemy, atlas: ReturnType<type
         const r = Math.atan2(Math.sin(rel), Math.cos(rel));
         frame = aimFrame(r);
     }
-    const rot = e.state === "dead" && e.anim === "hurt" ? e.rot : 0;
+    const rot = e.state === "dead" && e.anim === "hurt" && e.kind !== "boss" ? e.rot : 0;
     const white = e.flash > 0 && e.flash % 2 === 1;
+    if (e.kind === "boss") {
+        const blink = (e.data.inv ?? 0) > 0 && Math.floor(e.data.inv / 3) % 2 === 0;
+        if (e.state === "windup") {
+            // The tell: a glowing line where he's about to dash
+            const len = 120;
+            a.fillStyle = hexA(PAL.hot, 0.35 + 0.25 * Math.sin(w.step * 0.6));
+            a.fillRect(Math.round(e.face > 0 ? e.x : e.x - len), Math.round(e.y - 1), len, 1);
+            glow(a, e.x, e.y - 14, 22, PAL.hot, 0.4);
+        }
+        if (e.state === "recover" || e.state === "stun") glow(a, e.x, e.y - 12, 18, PAL.pass, 0.3);
+        drawSprite(a, s, frame, e.x, e.y, e.face, { white, alpha: blink ? 0.4 : undefined });
+        return;
+    }
     if (e.kind === "sentry") {
         drawSprite(a, s, frame, e.x, e.y + s.oy, 1, { white });
         if (e.state !== "dead") {
@@ -412,8 +590,19 @@ const drawBullets = (a: CanvasRenderingContext2D, w: World, atlas: ReturnType<ty
             if (mine) glow(a, b.x, b.y, 8, PAL.cyan, 0.5);
             continue;
         }
+        if (b.kind === "wave") {
+            // A power chord rolling along the floor
+            for (let i = 0; i < 4; i++) {
+                const hh = 12 - i * 3;
+                a.globalAlpha = 1 - i * 0.22;
+                R(a, b.x - Math.sign(b.vx) * i * 3, b.y + 5 - hh, 2, hh, i === 0 ? "#ffffff" : PAL.hot);
+            }
+            a.globalAlpha = 1;
+            glow(a, b.x, b.y, 12, PAL.hot, 0.5);
+            continue;
+        }
         if (b.kind === "note" || b.kind === "bracket") {
-            drawText(a, b.kind === "note" ? "♪" : "{", b.x - 2, b.y - 3, mine ? PAL.cyan : PAL.hot);
+            drawText(a, b.kind === "note" ? "♪" : b.id % 2 ? "{" : "}", b.x - 2, b.y - 3, mine ? PAL.cyan : PAL.hot);
             glow(a, b.x, b.y, 8, mine ? PAL.cyan : PAL.hot, 0.4);
             continue;
         }
@@ -581,6 +770,20 @@ const drawHud = (h: CanvasRenderingContext2D, w: World, atlas: ReturnType<typeof
     R(h, mx + 1, 4, 5, 9, "#07050f");
     R(h, mx + 4, 4, 2, 4, w.player.held ? PAL.hot : "#3d3570");
     R(h, mx + 1, 4, 2, 4, "#3d3570");
+
+    // The boss's health: three crowns
+    const boss = w.enemies.find((e) => e.kind === "boss");
+    if (boss) {
+        drawText(h, "DOGEKING", W / 2 - 60, 22, PAL.hot, { shadow: "#07050f" });
+        for (let i = 0; i < 3; i++) {
+            const on = i < boss.hp;
+            const x = W / 2 - 8 + i * 12;
+            R(h, x, 25, 9, 4, on ? PAL.amber : "#2c2754");
+            R(h, x, 22, 2, 3, on ? PAL.amber : "#2c2754");
+            R(h, x + 4, 21, 1, 4, on ? PAL.amber : "#2c2754");
+            R(h, x + 7, 22, 2, 3, on ? PAL.amber : "#2c2754");
+        }
+    }
 
     // Enemies left, on the left of the item slot
     const n = alive(w);

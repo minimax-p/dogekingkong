@@ -83,7 +83,7 @@ export const updateBullets = (w: World) => {
                 spawnSparks(w, b.x, b.y, Math.atan2(-b.vy, -b.vx), 6);
                 emit(w, "ricochet", b.x, b.y);
             } else if (e.kind === "boss") {
-                hitBoss(w, e, Math.atan2(b.vy, b.vx));
+                hitBoss(w, e, Math.atan2(b.vy, b.vx), "bullet");
             } else {
                 killEnemy(w, e, Math.atan2(b.vy, b.vx), 5, "bullet");
             }
@@ -116,7 +116,7 @@ export const updateItems = (w: World) => {
                 e.vx = Math.sign(it.vx) * 1.5;
                 emit(w, "clang", e.x, e.y - 12);
             } else if (e.kind === "boss") {
-                hitBoss(w, e, Math.atan2(it.vy, it.vx));
+                hitBoss(w, e, Math.atan2(it.vy, it.vx), "item");
             } else killEnemy(w, e, Math.atan2(it.vy, it.vx), 5, "item");
             break;
         }

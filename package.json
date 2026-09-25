@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:tower": "tsx --tsconfig tsconfig.json scripts/tower-test.ts"
   },
   "dependencies": {
     "@fontsource/vt323": "^5.3.0",

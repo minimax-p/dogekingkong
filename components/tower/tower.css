@@ -878,3 +878,163 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ---- Portrait, ending and credits ---- */
+
+.tw-box.has-portrait {
+  padding-left: calc(3cqw + 16cqh);
+}
+
+.tw-portrait {
+  position: absolute;
+  left: 2cqw;
+  top: 2.4cqh;
+  width: 13cqh;
+  height: 13cqh;
+  object-fit: cover;
+  border: 0.4cqh solid var(--t-peri);
+  image-rendering: auto;
+  animation: tw-reveal 0.8s steps(8) both;
+}
+
+@keyframes tw-reveal {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+.tw-ending {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4cqh;
+  padding: 0 8cqw;
+  pointer-events: auto;
+  cursor: default;
+}
+
+.tw-contact {
+  display: flex;
+  gap: 3cqw;
+  align-items: flex-start;
+  padding: 4cqh 3cqw;
+  background: rgba(7, 5, 15, 0.9);
+  border: 0.4cqh solid var(--t-line);
+  animation: tw-card-in 0.6s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.tw-contact img {
+  width: 22cqh;
+  height: 22cqh;
+  object-fit: cover;
+  border: 0.4cqh solid var(--t-peri);
+}
+
+.tw-contact h2 {
+  margin: 0;
+  font-family: "Cubano", sans-serif;
+  font-weight: 400;
+  font-size: 9cqh;
+  line-height: 1;
+}
+
+.tw-contact-tag {
+  margin: 0.5cqh 0 2cqh;
+  font-size: 4.2cqh;
+  color: var(--t-mist);
+}
+
+.tw-contact-email {
+  display: flex;
+  gap: 2cqw;
+  align-items: center;
+  font-size: 5cqh;
+}
+
+.tw-contact-email a {
+  color: var(--t-cyan);
+}
+
+.tw-contact-email button {
+  padding: 0.3cqh 1.5cqw;
+  font-size: 3.6cqh;
+  border: 0.3cqh solid var(--t-peri);
+}
+
+.tw-contact-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1cqh 3cqw;
+  margin: 2cqh 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 4.2cqh;
+}
+
+.tw-contact-links a,
+.tw-ending-actions a {
+  color: var(--t-paper);
+}
+
+.tw-contact-links a:hover,
+.tw-ending-actions a:hover,
+.tw-ending-actions button:hover {
+  color: var(--t-cyan);
+}
+
+.tw-ending-actions {
+  display: flex;
+  gap: 4cqw;
+  font-size: 4.6cqh;
+}
+
+.tw-credits {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: auto;
+  cursor: pointer;
+  mask-image: linear-gradient(to bottom, transparent, #000 15%, #000 85%, transparent);
+}
+
+.tw-credits-roll {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  text-align: center;
+  font-size: 4.2cqh;
+  animation: tw-roll 38s linear forwards;
+}
+
+.tw-credits-roll h3 {
+  margin: 6cqh 0 2cqh;
+  font-family: "Cubano", sans-serif;
+  font-weight: 400;
+  font-size: 6cqh;
+  color: var(--t-hot);
+}
+
+.tw-credits-roll p {
+  margin: 0.6cqh 0;
+  color: var(--t-paper);
+}
+
+.tw-credits-roll span {
+  display: block;
+  color: var(--t-mist);
+  font-size: 3.4cqh;
+}
+
+.tw-credits-end {
+  margin-top: 12cqh !important;
+  color: var(--t-cyan) !important;
+}
+
+@keyframes tw-roll {
+  to {
+    transform: translateY(calc(-100% - 100cqh));
+  }
+}

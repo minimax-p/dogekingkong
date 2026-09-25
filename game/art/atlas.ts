@@ -1,5 +1,5 @@
 // Bakes every animation into canvases once, facing both ways.
-import { botAnims, BOTS, HEADHUNTER, HH_ANIMS, type Anim } from "@/game/art/characters";
+import { botAnims, BOTS, DOGE, DOGE_ANIMS, HEADHUNTER, HH_ANIMS, MINH_LOOK, type Anim } from "@/game/art/characters";
 import { flipBuf, makeBuf, toCanvas, whiteBuf, type Buf } from "@/game/art/pixels";
 import { CELL, drawPose, ORIGIN_Y, type Look } from "@/game/art/rig";
 import { SMALL_SPRITES } from "@/game/art/small";
@@ -68,6 +68,10 @@ export const getAtlas = (): Atlas => {
     for (const [name, anim] of Object.entries(HH_ANIMS)) a[`hh.${name}`] = bakeAnim(HEADHUNTER, anim);
     for (const kind of Object.keys(BOTS) as (keyof typeof BOTS)[]) {
         for (const [name, anim] of Object.entries(botAnims(kind))) a[`${kind}.${name}`] = bakeAnim(BOTS[kind], anim);
+    }
+    for (const [name, anim] of Object.entries(DOGE_ANIMS)) {
+        a[`boss.${name}`] = bakeAnim(DOGE, anim);
+        a[`minh.${name}`] = bakeAnim(MINH_LOOK, anim);
     }
     for (const [name, s] of Object.entries(SMALL_SPRITES)) {
         a[name] = fromBufs(s.frames, s.fps, s.loop, s.ox, s.oy);

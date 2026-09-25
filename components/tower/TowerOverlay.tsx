@@ -6,6 +6,8 @@ import React, { useEffect, useState } from "react";
 import type { Action, UiState } from "@/game/flow/game";
 import type { FloorDef } from "@/game/story/types";
 import Dossier from "@/components/tower/Dossier";
+import Ending from "@/components/tower/Ending";
+import { PROFILE } from "@/lib/content";
 
 const SPEAKERS: Record<string, string> = {
     client: "The Client",
@@ -112,8 +114,12 @@ const DialogueBox: React.FC<{ ui: UiState; dispatch: Props["dispatch"]; floor: F
                     <span>{next?.id ?? "R"}</span>
                 </div>
             )}
-            <div className={`tw-box who-${d.who}`} onClick={() => dispatch({ type: "advance" })}>
-                {name && <p className="tw-who">{name}</p>}
+            <div className={`tw-box who-${d.who} ${d.portrait ? "has-portrait" : ""}`} onClick={() => dispatch({ type: "advance" })}>
+                {d.portrait === "minh" && (
+                    // eslint-disable-next-line @next/next/no-img-element -- a small, pre-sized photo
+                    <img className="tw-portrait" src={PROFILE.photo} alt="Minh Pham, unmasked" />
+                )}
+                {name && <p className="tw-who">{d.portrait === "minh" ? "Minh Pham" : name}</p>}
                 <p className="tw-text" aria-live="polite">
                     {d.text}
                     {!d.done && <span className="tw-caret">▌</span>}
@@ -271,15 +277,5 @@ const ElevatorPanel: React.FC<{ ui: UiState; dispatch: Props["dispatch"]; floors
         </div>
     );
 };
-
-const Ending = () => (
-    <div className="tw-title">
-        <p className="tw-title-kicker">■ STOP</p>
-        <h2 className="tw-title-name">Thanks for playing</h2>
-        <Link className="tw-start" href="/">
-            Back to the room
-        </Link>
-    </div>
-);
 
 export default TowerOverlay;

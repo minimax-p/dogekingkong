@@ -10,6 +10,7 @@ import { loadSave, saveSave, type SaveData, type Settings } from "@/game/flow/sa
 import { makeStore, type Store } from "@/game/flow/store";
 import { makeLayers, renderWorld, type HudOpts } from "@/game/render/renderer";
 import { makePost, type Post, type PostParams } from "@/game/render/post";
+import { preloadImages } from "@/game/render/images";
 import type { FloorDef, Line, Script } from "@/game/story/types";
 import { chestY } from "@/game/world/player";
 import { parseStage, type Stage } from "@/game/world/stage";
@@ -20,6 +21,7 @@ export type Screen = "title" | "card" | "play" | "dead" | "rewind" | "clear" | "
 
 export type DialogueView = {
     who: Line["who"];
+    portrait: Line["portrait"] | null;
     text: string; // typed so far
     full: string;
     done: boolean;
@@ -105,6 +107,7 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
     });
 
     getAtlas();
+    preloadImages(floors.flatMap((f) => f.stages));
     const { layers, canvases } = makeLayers();
     let post: Post = makePost(display);
     store.set({ gl: post.gl });
@@ -119,6 +122,11 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
     let realT = 0;
     let script: { lines: Script; i: number; typed: number; then: () => void } | null = null;
     let lastInput: Input = emptyInput();
+    // The last failed attempt, replayed as a ghost on stages that ask for it
+    let prevTape: Input[] | null = null;
+    let ghost: { world: World; tape: Input[]; i: number } | null = null;
+    const talked = new Set<string>();
+    let bossT = 0;
 
     function newWorld() {
         const s = store.get();
@@ -139,6 +147,8 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
         world = newWorld();
         rec = makeRecorder();
         replay = null;
+        prevTape = null;
+        ghost = null;
         audio?.music(floors[f].music);
     };
 
@@ -155,8 +165,14 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
 
     const afterCard = () => {
         const fl = floor();
-        if (fl.intro && store.get().stage === 0) runScript(fl.intro, () => setScreen("play"));
-        else setScreen("play");
+        if (fl.intro && store.get().stage === 0) {
+            // A floor that offers headphones starts in silence until you choose
+            if (fl.intro.some((l) => l.choices?.some((c) => c.action === "music"))) audio?.setMusicOn(false);
+            runScript(fl.intro, () => {
+                if (store.get().settings.music) audio?.setMusicOn(true);
+                setScreen("play");
+            });
+        } else setScreen("play");
     };
 
     // ---- Dialogue
@@ -181,6 +197,7 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
         store.set({
             dialogue: {
                 who: line.who,
+                portrait: line.portrait ?? null,
                 text: line.text.slice(0, n),
                 full: line.text,
                 done,
@@ -213,6 +230,9 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
             audio?.setMusicOn(false);
         } else if (name === "end" && script) {
             script.i = script.lines.length - 1;
+        } else if (name === "unmask") {
+            world.flags.unmasked = 1;
+            audio?.sting("clear");
         }
         opts.onAction?.(name);
     };
@@ -246,9 +266,12 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
 
     // ---- Stage flow
     const restartStage = () => {
+        bossT = 0;
+        if (rec.tape.length > 30) prevTape = rec.tape;
         world = newWorld();
         rec = makeRecorder();
         replay = null;
+        ghost = stage.def.ghost && prevTape ? { world: newWorld(), tape: prevTape, i: 0 } : null;
         setScreen("play");
     };
 
@@ -279,13 +302,23 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
         saveSave(save2);
         const go = () => {
             if (s.floor + 1 < floors.length) beginFloor(s.floor + 1);
-            else setScreen("ending");
+            else {
+                // The top: the last file is his contact card
+                const sv = { ...store.get().save };
+                if (!sv.intel.includes(fl.dossier)) sv.intel = [...sv.intel, fl.dossier];
+                store.set({ save: sv });
+                saveSave(sv);
+                setScreen("ending");
+            }
         };
         if (fl.ride) {
             audio?.sting("ding");
             setScreen("elevator");
             runScript(fl.ride, go);
             store.set({ screen: "elevator" });
+        } else if (fl.outro) {
+            audio?.music(8);
+            runScript(fl.outro, go);
         } else go();
     };
 
@@ -323,8 +356,24 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
                 }
                 break;
             case "play": {
+                // A conversation waiting at this spot?
+                const talks = stage.def.talk;
+                if (talks) {
+                    const tx = world.player.x / 16;
+                    const i = talks.findIndex((tk, k) => tx >= tk.x && !talked.has(`${stage.def.id}:${k}`));
+                    if (i >= 0) {
+                        talked.add(`${stage.def.id}:${i}`);
+                        runScript(talks[i].script, () => setScreen("play"));
+                        break;
+                    }
+                }
                 const inp = input.sample(toWorld, chest, world.player.face);
                 lastInput = inp;
+                if (ghost) {
+                    const gi = ghost.tape[ghost.i++];
+                    if (gi) stepWorld(ghost.world, gi);
+                    else ghost = null;
+                }
                 record(rec, world, inp);
                 stepWorld(world, inp);
                 audio?.events(world.events, world, false);
@@ -337,6 +386,11 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
                     store.set({ deathLine: DEATH_LINES[world.deathCause] ?? DEATH_LINES.bullet, deaths: d, skipOffer: d >= 3 });
                     setScreen("dead");
                     audio?.tapeStop();
+                }
+                // Boss down: a beat to take it in, then the tape
+                if (stage.def.boss && world.cleared && !world.won && !world.dead) {
+                    bossT++;
+                    if (bossT > 80) world.won = true;
                 }
                 if (world.won) {
                     setScreen("clear");
@@ -505,6 +559,7 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
             clock: fl.clock ? clockAt(fl.clock, w.time) : undefined,
             reduced,
             t: realT,
+            ghost: s.screen === "play" && ghost && ghost.world.player.state !== "dead" ? ghost.world.player : null,
         });
         post.render(canvases, P);
     };

@@ -13,6 +13,7 @@ export type Line = {
     goto?: string; // jump after this line
     action?: string; // fire after this line (e.g. "music", "email")
     end?: boolean;
+    portrait?: "minh"; // show his photo in the dialogue box
 };
 
 export type Script = Line[];
@@ -26,6 +27,7 @@ export type FloorDef = {
     stages: StageDef[];
     intro?: Script; // before the first stage
     ride?: Script; // in the elevator, after the last stage
+    outro?: Script; // after the last stage, where there's no elevator (the penthouse)
     dossier: string; // dossier entry unlocked here
     music: number; // synth track index
     clock?: string; // on-screen time for the tape

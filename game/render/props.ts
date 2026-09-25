@@ -215,6 +215,104 @@ export const drawStaticProp = (g: G, p: PropDef, t: PropCtx) => {
             R(g, x, y - 12, w, 2, "#3d3570");
             for (let i = 0; i < w; i += 6) R(g, x + i, y - 10, 1, 10, "#2c2754");
             break;
+        case "server": {
+            // A rack of blinking servers
+            R(g, x, y - h, w, h, "#0a0c18");
+            for (let yy = y - h + 3; yy < y - 3; yy += 5) {
+                R(g, x + 2, yy, w - 4, 4, "#161a2e");
+                R(g, x + 3, yy + 1, 2, 1, (yy / 5) % 3 === 0 ? th.accent : th.light);
+                R(g, x + w - 8, yy + 2, 5, 1, "#2c3354");
+            }
+            break;
+        }
+        case "net": {
+            // Badminton net (the post is a solid tile in the map)
+            R(g, x + 6, y - h, 3, h, "#ece8ff");
+            g.fillStyle = "rgba(236,232,255,0.35)";
+            for (let yy = y - h + 2; yy < y - 12; yy += 3) g.fillRect(x + 3, yy, 9, 1);
+            for (let xx = x + 3; xx < x + 13; xx += 3) g.fillRect(xx, y - h + 2, 1, h - 14);
+            R(g, x + 2, y - h, 11, 2, "#ece8ff");
+            break;
+        }
+        case "courtline":
+            R(g, x, y - 1, w, 1, "#ece8ff");
+            R(g, x + w / 2, y - 1, 1, 1, "#ff3d7f");
+            break;
+        case "boba": {
+            // Boba counter with cups and a menu board
+            R(g, x, y - 20, w, 3, "#ff8fb4");
+            R(g, x, y - 17, w, 17, "#3a2050");
+            R(g, x + 2, y - 15, w - 4, 1, "#5a3070");
+            for (let i = 0; i < 4; i++) {
+                const cx = x + 6 + i * 10;
+                R(g, cx, y - 28, 6, 8, "#ece8ff");
+                R(g, cx + 1, y - 26, 4, 5, i % 2 ? "#c9a27a" : "#e8b8d0");
+                R(g, cx + 1, y - 23, 4, 2, "#1d1838");
+                R(g, cx + 3, y - 32, 1, 4, "#ff3d7f");
+            }
+            R(g, x + 4, y - 58, w - 8, 24, "#07050f");
+            drawText(g, "BOBA", x + w / 2, y - 55, "#ff8fb4", { align: "center" });
+            drawText(g, "TARO · MATCHA", x + w / 2, y - 45, "#a9a3d6", { align: "center" });
+            glow(g, x + w / 2, y - 46, 40, "#ff8fb4", 0.2);
+            break;
+        }
+        case "amp":
+            R(g, x, y - 22, 18, 22, "#141022");
+            R(g, x + 1, y - 21, 16, 5, "#2c2754");
+            R(g, x + 2, y - 20, 2, 2, "#ffcf6b");
+            R(g, x + 6, y - 20, 2, 2, "#ffcf6b");
+            for (let yy = y - 14; yy < y - 2; yy += 2) R(g, x + 2, yy, 14, 1, "#1d1838");
+            break;
+        case "weights": {
+            R(g, x, y - 18, w, 2, "#3d3570");
+            R(g, x + 2, y - 16, 2, 16, "#2c2754");
+            R(g, x + w - 4, y - 16, 2, 16, "#2c2754");
+            for (let i = 0; i < 4; i++) {
+                R(g, x + 6 + i * 8, y - 24, 2, 6, "#5b4f9a");
+                R(g, x + 4 + i * 8, y - 22, 6, 2, "#a9a3d6");
+            }
+            break;
+        }
+        case "trophy": {
+            // Glass case: the badminton team trophy
+            R(g, x, y - 34, 26, 34, "#1d1838");
+            R(g, x + 2, y - 32, 22, 28, "rgba(140,158,255,0.12)");
+            R(g, x + 9, y - 26, 8, 6, "#ffcf6b");
+            R(g, x + 11, y - 20, 4, 4, "#ffcf6b");
+            R(g, x + 8, y - 16, 10, 2, "#c99a4a");
+            drawText(g, "CAPTAIN", x + 13, y - 11, "#ffcf6b", { align: "center" });
+            glow(g, x + 13, y - 22, 20, "#ffcf6b", 0.2);
+            break;
+        }
+        case "emergency":
+            R(g, x, y, 6, 3, "#2c2754");
+            R(g, x + 1, y + 3, 4, 2, "#ff4a4a");
+            glow(g, x + 3, y + 6, (p.w ?? 3) * 16, "#ff4a4a", 0.3);
+            break;
+        case "sign": {
+            const t2 = p.text ?? "";
+            const tw = t2.length * 6 + 6;
+            R(g, x, y - 13, tw, 13, "#07050f");
+            R(g, x, y - 13, tw, 1, p.flip ? th.accent : th.light);
+            drawText(g, t2, x + 3, y - 10, p.flip ? th.accent : "#ece8ff");
+            break;
+        }
+        case "wreck": {
+            // Collapsed legacy hardware
+            g.fillStyle = "#1d1838";
+            for (let i = 0; i < w; i += 4) g.fillRect(x + i, y - 4 - ((i * 7) % 9), 5, 4 + ((i * 7) % 9));
+            R(g, x + 3, y - 10, 12, 8, "#0a0816");
+            drawText(g, "IONIC", x + 3, y - 20, "#6b2a4a");
+            break;
+        }
+        case "sqlite": {
+            R(g, x, y - 20, 18, 20, "#141022");
+            for (let i = 0; i < 3; i++) R(g, x + 2, y - 18 + i * 6, 14, 4, "#2c2754");
+            R(g, x + 3, y - 17, 2, 1, "#5cf2b8");
+            drawText(g, "SQLITE", x + 9, y - 30, "#5cf2b8", { align: "center" });
+            drawText(g, "OFFLINE OK", x + 9, y - 40, "#5b4f9a", { align: "center" });
+            break;
+        }
         case "column":
             R(g, x, y - h, 12, h, th.wallHi);
             R(g, x + 1, y - h, 1, h, "#2c2754");

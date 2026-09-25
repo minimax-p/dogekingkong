@@ -411,3 +411,115 @@ export const botAnims = (kind: keyof typeof BOTS): Record<string, Anim> => {
 };
 
 export type { Anim };
+
+// ---------------------------------------------------------------------------
+// DogeKing: hoodie, crown, Shiba mask, and a guitar. Unmasked at the end.
+
+const CROWNED = [
+    ".y.y.y..",
+    ".yYyYy..",
+    ".e....e.",
+    "eEe..eEe",
+    "emmmmmme",
+    "mmmwmmmw",
+    "mmmmmmnn",
+    ".mcccccc",
+    "..cccc..",
+    "..hh....",
+] as const;
+
+const MINH = [
+    "..hhhh..",
+    ".hhhhhhh",
+    "hhhhhhhh",
+    "hhhHssss",
+    "hhssesse",
+    ".hssssss",
+    "..sssm..",
+    "..hh....",
+] as const;
+
+const dogeLook = (unmasked: boolean): Look => ({
+    thigh: 6,
+    shin: 7,
+    torso: 9,
+    upper: 5,
+    fore: 5,
+    legW: 3,
+    armW: 2,
+    coatLen: 4,
+    coatFlare: 0,
+    shoulderW: 3,
+    colors: {
+        coat: "#3a2350",
+        coatHi: "#7a5aa0",
+        coatLo: "#241634",
+        pants: "#1d2340",
+        pantsLo: "#141830",
+        boot: "#ece8ff",
+        glove: "#dcae96",
+        outline: PAL.ink,
+        rim: "#b09ae0",
+    },
+    head: unmasked ? MINH : CROWNED,
+    headColors: unmasked
+        ? { h: "#15101f", H: "#2a2140", s: "#dcae96", e: "#1d1838", m: "#b0786a" }
+        : { ...MASK_COLORS, y: PAL.amber, Y: "#c99a4a", h: "#3a2350" },
+    headOffset: unmasked ? [-4, -8] : [-4, -10],
+    weapon: "guitar",
+});
+
+export const DOGE = dogeLook(false);
+export const MINH_LOOK = dogeLook(true);
+
+export const DOGE_ANIMS: Record<string, Anim> = {
+    idle: {
+        fps: 6,
+        loop: true,
+        poses: [0, 0, 1, 1].map((y) => ({ y, lean: 2, fl: [8, 4], bl: [-8, 4], fa: [40, 60], ba: [20, 50], weapon: -30 })),
+    },
+    run: {
+        fps: 16,
+        loop: true,
+        poses: cycle([...BOT_STRIDE, ...BOT_STRIDE.map(swapSides)], 8).map((p) => ({ ...p, lean: 16, fa: [40, 60], weapon: -30 })),
+    },
+    windup: {
+        fps: 8,
+        loop: true,
+        poses: [
+            { lean: -10, y: 3, fl: [40, 80], bl: [-30, 60], fa: [-60, 40], ba: [-40, 40], weapon: -150 },
+            { lean: -12, y: 3, fl: [42, 84], bl: [-32, 62], fa: [-64, 40], ba: [-44, 40], weapon: -155 },
+        ],
+    },
+    dash: {
+        fps: 12,
+        loop: true,
+        poses: [{ lean: 30, y: 2, fl: [50, 30], bl: [-50, 40], fa: [96, 0], ba: [-60, 30], weapon: 0 }],
+    },
+    throw: {
+        fps: 10,
+        loop: false,
+        poses: [
+            { lean: -6, fl: [14, 6], bl: [-16, 10], fa: [40, 60], ba: [-150, 20], weapon: -30 },
+            { lean: 14, fl: [20, 6], bl: [-20, 16], fa: [40, 60], ba: [100, 0], weapon: -30 },
+        ],
+    },
+    strum: {
+        fps: 8,
+        loop: true,
+        poses: [
+            { lean: -4, fl: [16, 6], bl: [-16, 6], fa: [60, 70], ba: [40, 60], weapon: -20 },
+            { lean: -2, y: 1, fl: [16, 8], bl: [-16, 8], fa: [70, 40], ba: [40, 60], weapon: -20 },
+        ],
+    },
+    hurt: {
+        fps: 10,
+        loop: true,
+        poses: [{ lean: -24, fl: [30, 30], bl: [-10, 40], fa: [140, 30], ba: [-140, 20], weapon: -120 }],
+    },
+    kneel: {
+        fps: 4,
+        loop: false,
+        poses: [{ lean: 18, y: 7, fl: [70, 120], bl: [-20, 110], fa: [20, 20], ba: [-10, 20], weapon: 80 }],
+    },
+};

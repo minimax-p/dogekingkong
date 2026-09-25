@@ -240,11 +240,12 @@ export const stepWorld = (w: World, inp: Input) => {
             emit(w, "pickup", intel.x, intel.y, 2);
         }
     }
-    if (!w.cleared && alive(w) === 0) {
+    if (!w.cleared && !w.flags.hold && alive(w) === 0) {
         w.cleared = true;
+        w.flags.clearedAt = w.time * 60;
         emit(w, "clear", w.player.x, w.player.y);
     }
-    if (w.cleared && !w.won && !w.dead) {
+    if (w.cleared && !w.won && !w.dead && !w.stage.def.boss) {
         const p = w.player;
         const x = w.stage.exit;
         if (p.x > x.x && p.x < x.x + x.w && p.y > x.y && p.y - p.h < x.y + x.h) {

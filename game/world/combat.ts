@@ -51,7 +51,7 @@ export const processSlash = (w: World) => {
     }
 
     for (const b of w.bullets) {
-        if (b.owner !== "enemy") continue;
+        if (b.owner !== "enemy" || b.kind === "wave") continue;
         if (!inArc(w, b.x, b.y, 8)) continue;
         const speed = Math.max(10, Math.hypot(b.vx, b.vy) * 1.25);
         b.vx = Math.cos(p.aim) * speed;

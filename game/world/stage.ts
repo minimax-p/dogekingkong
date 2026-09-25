@@ -39,6 +39,12 @@ export type StageHooks = {
     step?: (w: import("@/game/world/types").World) => void;
 };
 
+// A platform that blinks on and off (in tiles; frames of game time)
+export type BlinkDef = { x: number; y: number; w: number; period: number; on: number; offset: number };
+
+// An updraft from a cooling vent (in tiles)
+export type ZoneDef = { kind: "vent"; x: number; y: number; w: number; h: number };
+
 export type StageDef = {
     id: string;
     title: string;
@@ -52,7 +58,11 @@ export type StageDef = {
     gateOn?: number;
     hooks?: StageHooks;
     dark?: boolean;
-    intel?: string; // dossier entry unlocked by the `?`
+    blinks?: BlinkDef[];
+    zones?: ZoneDef[];
+    talk?: { x: number; script: import("@/game/story/types").Script }[]; // conversations when the Headhunter reaches column x
+    ghost?: boolean; // show a ghost of the last attempt
+    boss?: boolean; // no exit: the stage ends when DogeKing is down
 };
 
 export type Stage = {
@@ -169,8 +179,10 @@ export const parseStage = (def: StageDef): Stage => {
     };
 };
 
+// Outside the map is solid, except below it: that's a pit.
 export const tileAt = (s: Stage, tx: number, ty: number) => {
-    if (tx < 0 || tx >= s.cols || ty < 0 || ty >= s.rows) return T_SOLID;
+    if (ty >= s.rows) return T_EMPTY;
+    if (tx < 0 || tx >= s.cols || ty < 0) return T_SOLID;
     return s.tiles[ty * s.cols + tx];
 };
 

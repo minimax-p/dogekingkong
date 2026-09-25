@@ -4,6 +4,23 @@ import { TILE } from "@/game/engine/constants";
 import { T_PLATFORM, T_SOLID, tileAt } from "@/game/world/stage";
 import type { Body, Door, World } from "@/game/world/types";
 
+// Blinking platforms are platforms only while they're on
+export const blinkOn = (w: World, i: number) => {
+    const b = w.stage.def.blinks![i];
+    return (w.time * 60 + b.offset) % b.period < b.on;
+};
+
+const tileAtW = (w: World, tx: number, ty: number) => {
+    const t = tileAt(w.stage, tx, ty);
+    if (t !== 0 || !w.stage.def.blinks) return t;
+    const bl = w.stage.def.blinks;
+    for (let i = 0; i < bl.length; i++) {
+        const b = bl[i];
+        if (ty === b.y && tx >= b.x && tx < b.x + b.w && blinkOn(w, i)) return T_PLATFORM;
+    }
+    return t;
+};
+
 const EPS = 0.001;
 export const DOOR_W = 4;
 
@@ -81,7 +98,7 @@ export const moveBody = (w: World, b: Body, dx: number, dy: number, drop = false
             const ty = Math.floor((ny - EPS) / TILE);
             const prevBottom = b.y;
             for (let tx = tx1; tx <= tx2; tx++) {
-                const t = tileAt(s, tx, ty);
+                const t = tileAtW(w, tx, ty);
                 const top = ty * TILE;
                 if (t === T_SOLID || (t === T_PLATFORM && !drop && prevBottom <= top + EPS * 10)) {
                     ny = top;
@@ -106,28 +123,26 @@ export const moveBody = (w: World, b: Body, dx: number, dy: number, drop = false
 
 // Is there something to stand on right under the feet?
 export const groundBelow = (w: World, b: Body, drop = false) => {
-    const s = w.stage;
     const hw = b.w / 2;
     const ty = Math.floor((b.y + 0.5) / TILE);
     if (Math.abs(b.y - ty * TILE) > 0.01) return false;
     const tx1 = Math.floor((b.x - hw + EPS) / TILE);
     const tx2 = Math.floor((b.x + hw - EPS) / TILE);
     for (let tx = tx1; tx <= tx2; tx++) {
-        const t = tileAt(s, tx, ty);
+        const t = tileAtW(w, tx, ty);
         if (t === T_SOLID || (t === T_PLATFORM && !drop)) return true;
     }
     return false;
 };
 
 export const onPlatform = (w: World, b: Body) => {
-    const s = w.stage;
     const hw = b.w / 2;
     const ty = Math.floor((b.y + 0.5) / TILE);
     const tx1 = Math.floor((b.x - hw + EPS) / TILE);
     const tx2 = Math.floor((b.x + hw - EPS) / TILE);
     let plat = false;
     for (let tx = tx1; tx <= tx2; tx++) {
-        const t = tileAt(s, tx, ty);
+        const t = tileAtW(w, tx, ty);
         if (t === T_SOLID) return false;
         if (t === T_PLATFORM) plat = true;
     }

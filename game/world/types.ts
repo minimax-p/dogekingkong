@@ -70,6 +70,11 @@ export type EnemyState =
     | "stun"
     | "block"
     | "leap"
+    | "move"
+    | "dash"
+    | "throw"
+    | "solo"
+    | "hurt"
     | "dead";
 
 export type Enemy = Body & {
@@ -97,7 +102,7 @@ export type Enemy = Body & {
     wire: number; // laser tripwire that wakes a sentry (-1 for none)
 };
 
-export type BulletKind = "bullet" | "pellet" | "shuttle" | "note" | "bracket";
+export type BulletKind = "bullet" | "pellet" | "shuttle" | "note" | "bracket" | "wave";
 
 export type Bullet = {
     id: number;
