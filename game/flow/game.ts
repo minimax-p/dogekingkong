@@ -219,12 +219,20 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
 
     const ensureAudio = () => {
         if (!audio) {
-            audio = makeAudio(store.get().settings);
+            try {
+                audio = makeAudio(store.get().settings);
+            } catch {
+                return; // no Web Audio: play in silence
+            }
             store.set({ audioReady: true });
-            audio.music(floor().music);
+            audio.music(store.get().screen === "title" ? 8 : floor().music);
         }
         audio.resume();
     };
+    // Browsers only allow sound after a click or key press, so start it inside one
+    const unlock = () => ensureAudio();
+    window.addEventListener("pointerdown", unlock, true);
+    window.addEventListener("keydown", unlock, true);
 
     const updateSettings = (patch: Partial<Settings>) => {
         const s = store.get();
@@ -274,6 +282,7 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
             else setScreen("ending");
         };
         if (fl.ride) {
+            audio?.sting("ding");
             setScreen("elevator");
             runScript(fl.ride, go);
             store.set({ screen: "elevator" });
@@ -405,6 +414,18 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
         store.set({ toast: { text, key: ++toastKey } });
     };
 
+    let lastMuffle = -1;
+    const updateAudioState = () => {
+        if (!audio) return;
+        const s = store.get();
+        const m = s.paused ? 0.85 : s.screen === "dialogue" || s.screen === "elevator" ? 0.45 : s.screen === "replay" ? 0.3 : 0;
+        if (m !== lastMuffle) {
+            audio.setMuffle(m);
+            lastMuffle = m;
+        }
+        if (s.screen !== "play") audio.setFocus(0, s.screen === "dead");
+    };
+
     // ---- Drawing
     const draw = () => {
         const s = store.get();
@@ -514,6 +535,7 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
             n++;
         }
         if (n === 5) acc = 0;
+        updateAudioState();
         draw();
         raf = requestAnimationFrame(frame);
     };
@@ -623,6 +645,8 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
             input.destroy();
             audio?.close();
             document.removeEventListener("visibilitychange", onVisibility);
+            window.removeEventListener("pointerdown", unlock, true);
+            window.removeEventListener("keydown", unlock, true);
             post = { render: () => {}, resize: () => {}, gl: false };
         },
     };
