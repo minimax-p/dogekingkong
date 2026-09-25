@@ -58,7 +58,7 @@ export const LAIR: StageDef = {
         { kind: "window", x: 2, y: 9, w: 9, h: 6 },
         { kind: "window", x: 29, y: 9, w: 9, h: 6 },
         { kind: "lamp", x: 20, y: 1, h: 2, w: 5, text: "#ffcf6b" },
-        { kind: "neon", x: 15, y: 3, text: "DOGEKING", flip: true },
+        { kind: "neon", x: 14.5, y: 3, text: "PENTHOUSE", flip: true },
         // The room from the main site: record cabinet, low table, amp corner, wall phone
         { kind: "furniture", x: 1.5, y: 14, w: 7.5, text: "projects" },
         { kind: "furniture", x: 15, y: 14, w: 10.5, text: "work" },

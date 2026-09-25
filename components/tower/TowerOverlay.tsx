@@ -83,7 +83,8 @@ const Title: React.FC<{ dispatch: Props["dispatch"] }> = ({ dispatch }) => (
         </h1>
         <p className="tw-title-sub">You are the Headhunter. Your target is at the top.</p>
         <button type="button" className="tw-start" onClick={() => dispatch({ type: "start" })}>
-            Press any key
+            <span className="tw-start-key">Press any key</span>
+            <span className="tw-start-tap">Tap to start</span>
         </button>
         <p className="tw-title-note">Headphones on. Flashing lights and screen shake; turn them down in Settings (Esc).</p>
         <Link className="tw-title-back" href="/">

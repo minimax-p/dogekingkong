@@ -123,6 +123,20 @@
   animation: tw-blink 1.2s steps(2, start) infinite;
 }
 
+.tw-start-tap {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .tw-start-key {
+    display: none;
+  }
+
+  .tw-start-tap {
+    display: inline;
+  }
+}
+
 .tw-title-note {
   margin: 1cqh 0 0;
   font-size: 3cqh;

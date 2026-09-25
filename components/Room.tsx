@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- hand-drawn SVG illustrations; next/image adds nothing for SVGs */
 "use client";
+import Link from "next/link";
 import React from "react";
 import { SECTION_TITLES, type SectionId } from "@/lib/content";
 
@@ -63,6 +64,18 @@ const Room: React.FC<RoomProps> = ({ onOpen }) => (
                 </button>
             );
         })}
+
+        {/* The secret: an elevator call button that leads to the tower game */}
+        <Link href="/tower" className="elevator-call" aria-label="Going up? Play DogeKing Tower, a game version of this site">
+            <svg viewBox="0 0 30 48" aria-hidden="true">
+                <rect x="1.5" y="1.5" width="27" height="45" rx="3" />
+                <circle cx="15" cy="17" r="6" />
+                <path className="elevator-arrow" d="M11.5 19 L15 14 L18.5 19 Z" />
+                <circle cx="15" cy="33" r="6" />
+                <path d="M11.5 31 L15 36 L18.5 31 Z" />
+            </svg>
+            <span className="elevator-call-label" aria-hidden="true">Going up?</span>
+        </Link>
     </div>
 );
 
