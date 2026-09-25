@@ -1,93 +1,173 @@
 /* Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@800&display=swap');
-
 @font-face {
   font-family: "Cubano";
-  src: url("../public/assets/Cubano.otf") format("opentype");
+  src: url("../public/assets/fonts/Cubano.otf") format("opentype");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Poppins";
-  src: url("../public/assets/fonts/Poppins-Regular.ttf") format("opentype");
+  src: url("../public/assets/fonts/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
 }
 
-/* CSS Variables */
+@font-face {
+  font-family: "Poppins";
+  src: url("../public/assets/fonts/Poppins-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+
+/* Palette — change the accent here and the whole site follows */
 :root {
-  --text-light: #000000;
-  --bg-light: #FFFFFF;
-  --text-dark: #FFFFFF;
-  --bg-dark: #000000;
-  --font-size: 16px;
+  --bg: #000000;
+  --fg: #ffffff;
+  --muted: rgba(255, 255, 255, 0.62);
+  --line: rgba(255, 255, 255, 0.14);
+
+  --accent: #8c9eff;          /* periwinkle: links, dates, highlights */
+  --accent-strong: #4f5bd5;   /* accent on light backgrounds (menu) */
+  --accent-deep: #2a1f7a;     /* far edge of the cursor glow */
+  --accent-tint: rgba(34, 40, 110, 0.45); /* backdrop when the menu is open */
+
+  --panel-bg: #0d0e14;
 }
 
-/* Global Styles */
+/* Global */
 * {
   box-sizing: border-box;
-  cursor: default;
 }
 
 html, body {
   padding: 0;
   margin: 0;
-  font-family: 'Poppins', sans-serif;
+  height: 100%;
+  font-family: "Poppins", sans-serif;
   overflow: hidden;
-  color: white;
-  background-color: black;
+  color: var(--fg);
+  background-color: var(--bg);
 }
 
 a, button {
-  cursor: pointer !important;
+  cursor: pointer;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }
 
 .no-select {
   user-select: none;
   -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
 }
 
-.pointer-cursor {
-  cursor: pointer;
+.stage {
+  /* Room scale, shared by the room and the hero (see "The room" below) */
+  --room-w: min(100vw, 180vh);
+  --u: calc(var(--room-w) / 1440);
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
-.pointer-cursor:hover {
-  cursor: pointer;
+/* Hero */
+#hero {
+  position: relative;
+  z-index: 3; /* above the room, so the name wins where it meets a drawing's empty corner */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 6vh;
+  pointer-events: none;
 }
 
-/* Typography */
-h1 {
-  z-index: 1;
-  font-family: 'Cubano', sans-serif;
-  color: white;
-  font-size: 100px;
-  text-align: center;
-  margin: 0;
+#hero > * {
+  pointer-events: auto;
 }
 
-h1:hover {
-  background-color: white;
-  color: black;
+.hero-hello {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem;
 }
 
 .glitch {
-  color: white;
+  font-family: "Cubano", sans-serif;
+  font-weight: normal;
+  font-size: clamp(56px, 7vw, 100px);
+  line-height: 1.1;
+  color: var(--fg);
+  text-align: center;
+  margin: 0;
+  padding: 0 0.1em;
+  cursor: default;
 }
 
 .glitch:hover {
-  background-color: white;
-  color: black;
+  background-color: var(--fg);
+  color: var(--bg);
 }
 
-h2 {
-  z-index: 1;
-  font-family: 'Cubano', sans-serif;
-  font-size: 2.3em;
-  margin: 0;
-  color: white;
+.hero-tagline {
+  margin: 1.25rem 0 0;
+  font-size: 1.05rem;
+  color: var(--muted);
 }
 
-p {
-  z-index: 1;
+.hero-links {
+  display: none;
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+  gap: 0.5rem 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-links button {
+  font-family: "Cubano", sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.hero-links button:hover {
+  color: var(--accent);
+}
+
+/* Cursor glow */
+@keyframes rotate {
+  from { rotate: 0deg; }
+  to { rotate: 360deg; }
+}
+
+#blob {
+  z-index: 0;
+  height: 500px;
+  aspect-ratio: 1;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: linear-gradient(to right, var(--accent), var(--accent-deep));
+  opacity: 0.8;
+  animation: rotate 20s infinite linear;
+  filter: blur(200px);
+  pointer-events: none;
 }
 
 /* Navigation */
@@ -98,58 +178,41 @@ p {
   width: 36px;
   height: 26px;
   transform: translateY(-50%);
-  border: 0;
-  background: transparent;
-  transition: all .3s ease-in;
-  z-index: 7;
-  align-content: center;
+  z-index: 60;
+  display: flex;
 }
 
 .bar {
-  fill: #ffffff;
-  width: 100%;
-  transition: all .3s ease-in;
+  fill: var(--fg);
+  transition: fill 0.3s ease-in;
 }
 
-.svg {
-  transition: .3s ease-in;
+.hamburger svg {
+  transition: transform 0.3s ease-in;
 }
 
-.hamburger.open .svg {
+.hamburger.open svg {
   transform: rotate(-90deg);
 }
 
 .hamburger.open .bar {
-  fill: #000000;
+  fill: var(--bg);
 }
 
 .navigation {
   position: fixed;
+  top: 0;
   left: -500px;
   width: 350px;
+  max-width: 100vw;
   height: 100%;
   background-color: #ffffff;
-  transition: .5s;
-  z-index: 6;
+  transition: left 0.5s;
+  z-index: 50;
 }
 
 .navigation.active {
   left: 0;
-}
-
-.navigation ul {
-  margin-top: 100px;
-  padding: 0;
-}
-
-.navigation li {
-  color: #000000;
-  text-align: center;
-  font-family: 'Cubano', sans-serif;
-  text-transform: uppercase;
-  list-style-type: none;
-  font-size: 2.5em;
-  padding: 20px 30px;
 }
 
 .navigation nav {
@@ -158,10 +221,34 @@ p {
   height: 100%;
 }
 
+.navigation ul {
+  margin: 100px 0 0;
+  padding: 0;
+}
+
+.navigation li {
+  list-style-type: none;
+  text-align: center;
+  padding: 20px 30px;
+}
+
+.navigation-item {
+  color: #000000;
+  font-family: "Cubano", sans-serif;
+  text-transform: uppercase;
+  font-size: 2.5em;
+  transition: color 0.1s 0.1s;
+}
+
+.navigation-item:hover {
+  text-decoration: line-through;
+  color: var(--accent-strong);
+}
+
 .navigation .footer {
   margin-top: auto;
   padding: 10px;
-  font-family: 'Cubano', sans-serif;
+  font-family: "Cubano", sans-serif;
 }
 
 .footer-item {
@@ -171,264 +258,568 @@ p {
 }
 
 #resume {
-  color: #C69D70;
+  color: var(--accent-strong);
   text-decoration: underline;
+  padding: 0 4px;
+  transition: background-color 0.1s 0.1s, color 0.1s 0.1s;
 }
 
 #resume:hover {
-  color: white;
-  background-color: #C69D70;
-  transition: background-color 0.1s, color 0.1s;
-  transition-delay: 0.1s;
-}
-
-.social {
-  height: 34px;
-  width: 34px;
-  color: black;
-  cursor: pointer;
-  padding-left: 3px;
-  padding-right: 3px;
-  text-decoration: none;
-}
-
-.social:hover {
-  color: #C69D70;
+  color: #ffffff;
+  background-color: var(--accent-strong);
 }
 
 #socials {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-right: 30px;
-  margin-left: 30px;
+  margin: 0 30px;
 }
 
-.navigation-item:hover {
-  text-decoration: line-through;
-  color: #C69D70;
-  transition: text-decoration 0.1s;
-  transition-delay: 0.1s;
+.social {
+  height: 34px;
+  width: 34px;
+  color: #000000;
+  padding: 0 3px;
+  text-decoration: none;
 }
 
-/* Overlay */
+.social:hover {
+  color: var(--accent-strong);
+}
+
+/* Overlay behind the open menu */
 #overlay {
   display: none;
   position: fixed;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  background-color: rgba(253, 127, 39, 0.3);
-  z-index: 4;
+  inset: 0;
+  background-color: var(--accent-tint);
+  z-index: 40;
+}
+
+#overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/assets/Textures.png") center / cover;
+  opacity: 0.2;
 }
 
 #overlay.active {
   display: block;
 }
 
-/* Hero Section */
-#hero {
+/*
+ * The room
+ * Everything inside is measured in "design pixels" (--u) of a 1440px-wide
+ * room, so the furniture, labels and arrows scale together as one picture.
+ * The room is as wide as the screen, but never so wide that it grows
+ * taller than the space below the name (the 180vh cap).
+ */
+.room {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: var(--room-w);
+  height: calc(900 * var(--u));
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.room-carpet {
+  position: absolute;
+  left: calc(12 * var(--u));
+  bottom: calc(16 * var(--u));
+  width: calc(1416 * var(--u));
+}
+
+.spot {
+  position: absolute;
+  left: calc(var(--x) * var(--u));
+  bottom: calc(var(--b) * var(--u));
+  width: calc(var(--w) * var(--u));
+  display: block;
+  pointer-events: auto;
+}
+
+.spot:focus-visible {
+  outline: none;
+}
+
+.spot-outline {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.spot-colored {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+}
+
+.spot-title,
+.spot-arrow {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.spot-title {
+  left: calc(var(--tx) * var(--u));
+  bottom: calc(100% + var(--ty) * var(--u));
+  font-family: "Cubano", sans-serif;
+  font-size: calc(36.8 * var(--u));
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--fg);
+}
+
+.spot-arrow {
+  left: calc(var(--ax) * var(--u));
+  bottom: calc(100% + var(--ay) * var(--u));
+  width: calc(var(--aw) * var(--u));
+  height: auto;
+}
+
+/* Resting state: outline only, label hidden */
+.spot-colored,
+.spot-title,
+.spot-arrow {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.spot-title,
+.spot-arrow {
+  translate: 0 calc(8 * var(--u));
+}
+
+.spot-outline,
+.spot-colored,
+.spot-title,
+.spot-arrow {
+  transition: opacity 0.25s ease, translate 0.25s ease, visibility 0.25s;
+}
+
+/* Hover / keyboard focus: fill with colour and show the label */
+.spot:hover .spot-outline,
+.spot:focus-visible .spot-outline {
+  opacity: 0;
+}
+
+.spot:hover :is(.spot-colored, .spot-title, .spot-arrow),
+.spot:focus-visible :is(.spot-colored, .spot-title, .spot-arrow) {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+}
+
+/* Touch screens can't hover, so show everything in colour */
+@media (hover: none) {
+  .spot-outline {
+    opacity: 0;
+  }
+
+  .spot :is(.spot-colored, .spot-title, .spot-arrow) {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+  }
+}
+
+/* Section panel */
+.panel-root {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+
+.panel-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 5, 14, 0.6);
+  backdrop-filter: blur(3px);
+}
+
+.panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(640px, 100vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border-left: 1px solid var(--line);
+  box-shadow: -30px 0 80px rgba(0, 0, 0, 0.5);
+}
+
+.panel-header {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 2.5rem 2.5rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.panel-eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+.panel-title {
+  font-family: "Cubano", sans-serif;
+  font-weight: normal;
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  line-height: 1;
+  margin: 0.4rem 0 0;
+}
+
+.panel-art {
+  height: 110px;
+  width: auto;
+  max-width: 45%;
+  object-fit: contain;
+  margin-right: 2.5rem;
+}
+
+.panel-art-contact {
+  height: 120px;
+}
+
+.panel-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--muted);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.panel-close:hover {
+  color: var(--fg);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 2.5rem 3rem;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.panel-body p {
+  margin: 0 0 1rem;
+}
+
+.panel-lead {
+  font-size: 1.1rem;
+}
+
+.about-profile {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: black;
-  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-/* Animations */
-@keyframes ripple {
-  from {
-    opacity: 1;
-    transform: scale(0);
-  }
-  to {
-    opacity: 0;
-    transform: scale(10);
-  }
-}
-
-@keyframes rotate {
-  from {
-    rotate: 0deg;
-  }
-  to {
-    rotate: 360deg;
-  }
-}
-
-/* Blob */
-#blob {
-  z-index: 0;
-  height: 500px;
-  aspect-ratio: 1;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  translate: -50% -50%;
+.about-photo {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
   border-radius: 50%;
-  background: linear-gradient(to right, #f1d47c, #6e1320);
-  animation: rotate 20s infinite;
-  filter: blur(200px);
+  object-fit: cover;
+  border: 2px solid var(--accent);
 }
 
-/*Carpet*/
-.carpet {
-  position: absolute !important;
-  transform: translateY(-20px) !important;
-  bottom: 1rem;
-  width: 98%;
-  height: auto;
-  left: 50%;
-  z-index: -9999;
-  /* Prevent layout shift */
-  will-change: transform;
-  backface-visibility: hidden;
+.panel-body .about-tagline {
+  margin: 0;
+  font-weight: 600;
+  color: var(--accent);
 }
 
+.inline-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
 
-/* Furniture Sections */
-.about {
+.inline-link:hover {
+  color: var(--accent);
+}
+
+/* Clip that follows the cursor over a GifHoverLink (centred, just above the pointer) */
+.gif-hover {
+  position: fixed;
+  z-index: 90;
+  width: 192px;
+  height: 108px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 20px));
+}
+
+.panel-heading {
+  font-family: "Cubano", sans-serif;
+  font-weight: normal;
+  font-size: 1.3rem;
+  letter-spacing: 0.02em;
+  margin: 2.25rem 0 1rem;
+}
+
+.entry + .entry {
+  margin-top: 1.75rem;
+}
+
+.entry-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.entry-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.entry-date {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.entry-sub {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.entry-label {
+  margin: 1rem 0 0.4rem;
+}
+
+.entry-points {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.entry-points li + li {
+  margin-top: 0.3rem;
+}
+
+.entry-points li::marker {
+  color: var(--accent);
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 1.25rem;
+  border-left: 1px solid var(--line);
+}
+
+.timeline .entry {
+  position: relative;
+}
+
+.timeline .entry::before {
+  content: "";
   position: absolute;
-  right: 6rem;
-  bottom: 4rem;
-  width: 26%;
-  height: auto;
+  left: calc(-1.25rem - 5px);
+  top: 0.45rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
-#about-arrow {
-  position: absolute;
-  right: 6rem;
-  bottom: 28rem;
+.skill-group + .skill-group {
+  margin-top: 1rem;
 }
 
-#about-title {
-  position: absolute;
-  right: 10rem;
-  bottom: 30.5rem;
+.skill-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
 }
 
-#about-outline, #about-colored, #about-title, #about-arrow {
-  transition: opacity 0.2s ease-in-out;
+.chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
 }
 
-#about-colored, #about:hover #about-outline, #about-title, #about-arrow {
-  opacity: 0;
+.chip {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
 }
 
-#about:hover #about-colored, #about:hover #about-title, #about:hover #about-arrow {
-  opacity: 1;
-  cursor: pointer;
+.project-grid {
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
 }
 
-.work {
-  position: absolute;
-  bottom: 2rem;
-  width: 28%;
-  left: 50%;
-  transform: translate(-50%, 0);
+.project-card {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  transition: border-color 0.2s;
 }
 
-#work-title {
-  position: absolute;
-  bottom: 17rem;
-  left: 54%;
-  opacity: 0;
+.project-card:hover {
+  border-color: var(--accent);
 }
 
-#work-arrow {
-  position: absolute;
-  bottom: 14rem;
-  left: 50%;
-  transform: translate(-50%, 0);
-  opacity: 0;
+.project-card p {
+  margin: 0.5rem 0 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
 }
 
-#work-outline, #work-colored, #work-title, #work-arrow {
-  transition: opacity 0.2s ease-in-out;
+.text-link {
+  display: inline-block;
+  margin-top: 0.8rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
 }
 
-#work-colored, #work:hover #work-outline {
-  opacity: 0;
+.text-link:hover {
+  text-decoration: underline;
 }
 
-#work:hover, #work:hover #work-colored, #work:hover #work-arrow, #work:hover #work-title {
-  opacity: 1;
-  cursor: pointer;
+.contact-email-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1.5rem;
 }
 
-.projects {
-  position: absolute;
-  left: 10rem;
-  bottom: 5rem;
-  width: 19.8%;
-  height: auto;
+.copy-button {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  transition: color 0.15s, border-color 0.15s;
 }
 
-#projects-title, #projects-arrow {
-  position: absolute;
-  bottom: 24.5rem;
-  left: 16rem;
-  opacity: 0;
+.copy-button:hover {
+  color: var(--fg);
+  border-color: var(--accent);
 }
 
-#projects-arrow {
-  bottom: 20rem;
-  left: 15rem;
+.contact-email {
+  display: inline-block;
+  font-weight: 600;
+  font-size: clamp(1.05rem, 3.4vw, 1.45rem);
+  color: var(--fg);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 6px;
+  word-break: break-all;
 }
 
-#projects-title {
-  transform: translate(-50%, 0);
+.contact-email:hover {
+  color: var(--accent);
 }
 
-#projects-outline, #projects-colored, #projects-arrow, #projects-title {
-  transition: opacity 0.2s ease-in-out;
+.contact-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin: 0 0 2rem;
+  padding: 0;
 }
 
-#projects-colored, #projects:hover #projects-outline {
-  opacity: 0;
+.contact-links .text-link {
+  margin-top: 0;
 }
 
-#projects:hover #projects-colored, #projects:hover #projects-arrow, #projects:hover #projects-title {
-  opacity: 1;
-  cursor: pointer;
+.resume-button {
+  display: inline-block;
+  padding: 0.8rem 1.4rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #0b0c1a;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s;
 }
 
-.contact {
-  position: absolute;
-  left: 4rem;
-  bottom: 50%;
-  height: auto;
+.resume-button:hover {
+  background: #ffffff;
 }
 
-#contact-title, #contact-arrow {
-  position: absolute;
-  top: 12rem;
-  left: 8rem;
-  opacity: 0;
+/*
+ * On short screens, lift the hero so the name and tagline stay clear of the
+ * Work label, whose top sits 310 design px above the floor. 250px covers the
+ * hero's own height plus a gap.
+ */
+@media (min-width: 1024px) {
+  #hero {
+    padding-bottom: max(6vh, calc(250px - 100vh + 620 * var(--u)));
+  }
 }
 
-#contact-title {
-  transform: translate(30%, -2rem);
+/* Small screens: the room gets too small to use, so show text links instead */
+@media (max-width: 1023px) {
+  .room {
+    display: none;
+  }
+
+  .hero-links {
+    display: flex;
+  }
+
+  .panel-header,
+  .panel-body {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .panel-art {
+    display: none;
+  }
 }
 
-#contact-outline, #contact-colored, #contact-arrow, #contact-title {
-  transition: opacity 0.2s ease-in-out;
-}
+@media (prefers-reduced-motion: reduce) {
+  #blob {
+    animation: none;
+  }
 
-#contact-colored, #contact:hover #contact-outline {
-  opacity: 0;
-}
-
-#contact:hover #contact-colored, #contact:hover #contact-arrow, #contact:hover #contact-title {
-  opacity: 1;
-  cursor: pointer;
-}
-
-/* Responsive - Hide furniture on mobile */
-@media (max-width: 1024px) {
-  .about, .work, .projects, .contact {
-    display: none !important;
+  .spot-outline,
+  .spot-colored,
+  .spot-title,
+  .spot-arrow {
+    transition: none;
   }
 }
