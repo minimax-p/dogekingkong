@@ -418,6 +418,78 @@ button {
   translate: 0 0;
 }
 
+/* The elevator call button: a quiet way into the tower game */
+.elevator-call {
+  position: absolute;
+  left: calc(1372 * var(--u));
+  bottom: calc(470 * var(--u));
+  width: calc(30 * var(--u));
+  color: var(--fg);
+  pointer-events: auto;
+}
+
+.elevator-call svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  transition: color 0.25s ease, filter 0.25s ease;
+}
+
+.elevator-call .elevator-arrow {
+  transition: fill 0.25s ease;
+}
+
+.elevator-call-label {
+  position: absolute;
+  right: calc(100% + 14 * var(--u));
+  top: calc(6 * var(--u));
+  font-family: "Cubano", sans-serif;
+  font-size: calc(26 * var(--u));
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--fg);
+  opacity: 0;
+  visibility: hidden;
+  translate: calc(8 * var(--u)) 0;
+  transition: opacity 0.25s ease, translate 0.25s ease, visibility 0.25s;
+}
+
+.elevator-call:hover svg,
+.elevator-call:focus-visible svg {
+  color: var(--accent);
+  filter: drop-shadow(0 0 calc(8 * var(--u)) var(--accent));
+}
+
+.elevator-call:hover .elevator-arrow,
+.elevator-call:focus-visible .elevator-arrow {
+  fill: currentColor;
+}
+
+.elevator-call:hover .elevator-call-label,
+.elevator-call:focus-visible .elevator-call-label {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+}
+
+.elevator-call:focus-visible {
+  outline: none;
+}
+
+/* On phones the room is hidden, so the way in is a small link under the name */
+.hero-secret {
+  display: none;
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  text-decoration: none;
+  opacity: 0.8;
+}
+
 /* Touch screens can't hover, so show everything in colour */
 @media (hover: none) {
   .spot-outline {
@@ -561,6 +633,11 @@ button {
 
 .inline-link:hover {
   color: var(--accent);
+}
+
+span.inline-link {
+  text-decoration-style: dotted;
+  cursor: default;
 }
 
 /* Clip that follows the cursor over a GifHoverLink (centred, just above the pointer) */
@@ -798,6 +875,10 @@ button {
 
   .hero-links {
     display: flex;
+  }
+
+  .hero-secret {
+    display: inline-block;
   }
 
   .panel-header,

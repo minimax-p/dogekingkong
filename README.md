@@ -14,7 +14,8 @@ points to it. Click it to open that section.
 ![The room with the About corner hovered](docs/preview.jpg)
 
 Built with [Next.js](https://nextjs.org) (App Router), React and plain CSS. Panel animations use
-[Framer Motion](https://motion.dev).
+[Framer Motion](https://motion.dev). There's also a secret game version at `/tower`; see
+[The secret level](#the-secret-level-dogeking-tower).
 
 ## Running it
 
@@ -29,6 +30,7 @@ Other scripts:
 
 ```bash
 npm run lint     # check the code for mistakes
+npm run test:tower  # check the tower game's stages and simulation
 npm run build    # production build (run this before deploying)
 npm start        # serve the production build locally
 ```
@@ -39,11 +41,12 @@ npm start        # serve the production build locally
 app/
   layout.tsx          page <title> and description
   page.tsx            the home page (just renders MinhPortfolio)
+  tower/page.tsx      the secret game (see below)
   globals.css         all styles, including the color palette at the top
   icon.png            browser-tab icon
 components/
   MinhPortfolio.tsx   puts the page together: glow, menu, name, room, panels
-  Room.tsx            the furniture, plus where each piece and its label sit
+  Room.tsx            the furniture, where each piece and its label sit, and the tower button
   SectionPanel.tsx    the slide-in panel for each section
   Navigation.tsx      hamburger menu, résumé link and social icons
   GlitchText.tsx      the scrambling "Minh Pham" title
@@ -105,6 +108,70 @@ Export the outline and colored versions at the same size so they line up.
    its content there too.
 2. Add a component that renders that content to `CONTENT` in `components/SectionPanel.tsx`.
 3. Add the three drawings (see above) and a row to `SPOTS` in `components/Room.tsx`.
+
+## The secret level: DogeKing Tower
+
+`/tower` is a playable, Katana Zero-style version of the portfolio. The way in is the elevator
+call button on the room's right wall (on phones, the "Going up?" link under your name). You play
+the Headhunter, climbing a tower where every floor is one of your jobs, to reach DogeKing (you)
+in the penthouse. The main room stays the real site; the tower is the surprise.
+
+It has no game engine. Everything is TypeScript: a Canvas 2D renderer, one WebGL shader pass,
+Web Audio for all sound and music, and sprites drawn in code. The plan behind it is in
+[docs/tower-plan.md](docs/tower-plan.md).
+
+**Controls:** A/D run · W or Space jump (again against a wall to wall-jump) · S roll or drop ·
+click to slash toward the cursor · right click to pick up and throw · hold Shift to slow time ·
+R to restart a stage · Esc to pause. Gamepads work, and phones play in landscape with touch
+controls. Recruiter mode in Settings makes you invincible, and after three deaths a stage offers
+a skip.
+
+```
+game/
+  engine/     constants (screen size, slow-motion numbers), input, random numbers
+  world/      the simulation: player, enemies, boss, bullets, stages, physics
+  art/        sprites drawn from pixel skeletons and small hand-drawn grids
+  render/     drawing, props, set pieces, lighting, the WebGL post pass
+  audio/      synthesized sound effects and the music sequencer
+  story/      floors, dialogue, the Dossier and one file of stage maps per floor
+  flow/       the screens between stages, saving, keyboard/mouse/pad/touch
+components/tower/   the React overlay: title, dialogue, menus, Dossier, ending
+```
+
+### Editing the tower
+
+- **Facts:** the floors, the Dossier, the ending card and the credits all read `lib/content.ts`,
+  so editing it updates the game too.
+- **Dialogue:** each floor's intro and elevator ride are in `game/story/floors.ts`. A line can
+  have `choices`, or an `interrupt` (the red option you can pick while it's still typing).
+- **Crew quotes (floor 2):** `CREW_LINES` in `game/story/stages/command.ts`. They restate résumé
+  facts for now; real quotes from teammates would be better.
+- **Stages:** one file per floor in `game/story/stages/`. Each map is ASCII, one character per
+  16 px tile:
+
+  | Tile | Means | Tile | Means |
+  | --- | --- | --- | --- |
+  | `#` | wall or floor | `=` | platform (jump up through, S to drop) |
+  | `\|` | door | `@` | where you start |
+  | `$` | exit | `?` | intel file |
+  | `!` | laser gate | `:` | tripwire (wakes the nearest `^` turret) |
+  | `*` | something to throw | `-` | patrol range for the enemy on that row |
+
+  Enemies are letters, lowercase facing left and uppercase facing right: `b` bouncer, `g` guard,
+  `e` shotgun, `f` shield, `u` bug, `d` drone, `l` shuttlecock launcher, `k` DogeKing. Props
+  (windows, lamps, signs, desks…) are listed under each stage's `props`, in tiles.
+- **Music:** `game/audio/music.ts` has one synthesized track per floor. Your band's recordings
+  could replace them.
+
+### Testing it
+
+```bash
+npm run test:tower   # maps are valid and reachable, replays are exact, slow motion is 5x slower
+```
+
+`/tower?stage=test` opens a sandbox room, `/tower?floor=4` starts on a given floor, and two debug
+views show the art: `/tower?debug=sprites` (every sprite frame) and `/tower?debug=stage&id=4-2`
+(a whole stage).
 
 ## Small screens and touch
 Below 1024px wide the room is hidden, and the sections appear as text links under the name.

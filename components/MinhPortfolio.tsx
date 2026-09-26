@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import GlitchText from "@/components/GlitchText";
 import Navigation from "@/components/Navigation";
@@ -50,6 +51,7 @@ const MinhPortfolio: React.FC = () => {
                         </li>
                     ))}
                 </ul>
+                <Link href="/tower" className="hero-secret">▲ Going up?</Link>
             </div>
 
             <Room onOpen={openSection} />

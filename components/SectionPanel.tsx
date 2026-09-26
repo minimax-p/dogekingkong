@@ -37,11 +37,12 @@ const AboutContent = () => {
                 <p key={p} className="panel-lead">{p}</p>
             ))}
             <p>
-                {outside.before}{" "}
-                {outside.link.gif
-                    ? <GifHoverLink className="inline-link" href={outside.link.href} gif={outside.link.gif}>{outside.link.label}</GifHoverLink>
-                    : <ExternalLink className="inline-link" href={outside.link.href}>{outside.link.label}</ExternalLink>}{" "}
-                {outside.after}
+                {outside.map((part, i) => {
+                    if (typeof part === "string") return part;
+                    if (part.gif) return <GifHoverLink key={i} className="inline-link" href={part.href} gif={part.gif}>{part.label}</GifHoverLink>;
+                    if (part.href) return <ExternalLink key={i} className="inline-link" href={part.href}>{part.label}</ExternalLink>;
+                    return part.label;
+                })}
             </p>
 
             <h3 className="panel-heading">Education</h3>

@@ -13,7 +13,7 @@ export const SECTION_TITLES: Record<SectionId, string> = {
 };
 
 export const PROFILE = {
-    tagline: "Data Science Student @ Fei Tian College",
+    tagline: "Software Engineer @ Stealth",
     photo: "/assets/photos/profile.jpg",
 };
 
@@ -27,24 +27,29 @@ export const SOCIALS = {
 };
 
 export type Link = { label: string; href: string };
-// `gif` (optional) is a short clip that follows the cursor while the link is hovered
-export type HoverLink = Link & { gif?: string };
+// Inline link in running text. `gif` (optional) is a short clip that follows the cursor
+// while hovered; leave `href` out to show the clip without linking anywhere.
+export type HoverLink = { label: string; href?: string; gif?: string };
+// A paragraph made of plain text and inline links, rendered in order
+export type RichText = (string | HoverLink)[];
 
 export const ABOUT = {
     intro: [
-        "I'm a Data Science major with extensive software development experience spanning mobile app development, test automation, and full-stack technologies.",
+        "I'm a Fei Tian College graduate (B.S. Data Science) now working as a Software Engineer at Stealth, with extensive experience spanning mobile app development, test automation, and full-stack technologies.",
         "With four internship experiences including recent roles as a Software Engineer at Stealth and Mobile Developer at Ticketingbox Inc, I specialize in cross-platform development, automated testing frameworks, and API integration. I have built complete mobile applications from scratch and implemented enterprise-level testing infrastructure.",
     ],
-    // Rendered as: before + link + after
-    outside: {
-        before: "Outside of tech, I'm",
-        link: {
+    outside: [
+        "Outside of tech, I was ",
+        {
             label: "founder and team captain",
             href: "https://www.linkedin.com/feed/update/urn:li:activity:7312539809267257347/",
             gif: "/assets/gifs/badminton-smash.webp",
-        } as HoverLink,
-        after: "for our college badminton team and enjoy staying active at the gym. I also play classical guitar and clarinet, love karaoke, and am always up for good boba.",
-    },
+        },
+        " for our college badminton team and enjoy staying active at the gym. I also play lead guitar in an indie band ",
+        // TODO: add the band's Instagram as `href` (the simpler site still has a placeholder)
+        { label: "(check us out!)", gif: "/assets/gifs/band.webp" },
+        ", play clarinet, and am always up for good boba.",
+    ] as RichText,
     education: {
         school: "Fei Tian College",
         url: "https://feitian.edu/",
@@ -87,6 +92,14 @@ export type WorkEntry = {
 };
 
 export const WORK: WorkEntry[] = [
+    {
+        role: "Software Engineer",
+        org: "Stealth",
+        dates: "Aug 2025 – Present",
+        points: [
+            "Build and test a locally hosted LLM stack: a chatbot and a coding agent.",
+        ],
+    },
     {
         role: "Software Engineer Intern",
         org: "Stealth",
@@ -146,6 +159,12 @@ export type Project = {
 };
 
 export const PROJECTS: Project[] = [
+    {
+        name: "Local LLM Stack",
+        year: "2025 – now",
+        blurb: "A locally hosted LLM stack with a chatbot and a coding agent, built and tested in-house at Stealth.",
+        tags: ["LLMs", "Chatbot", "Coding agent"],
+    },
     {
         name: "Nightly E2E Test Pipeline",
         year: "2025",

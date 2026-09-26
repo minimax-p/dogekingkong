@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface GifHoverLinkProps {
-    href: string;
+    href?: string;
     gif: string;
     className?: string;
     children: React.ReactNode;
@@ -13,6 +13,7 @@ interface GifHoverLinkProps {
 const HALF_WIDTH = 104; // half the clip's width plus a margin, to keep it on screen
 
 // A link that shows a short looping clip above the cursor while hovered.
+// Without `href` it's plain text that still shows the clip.
 const GifHoverLink: React.FC<GifHoverLinkProps> = ({ href, gif, className, children }) => {
     const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
 
@@ -32,19 +33,18 @@ const GifHoverLink: React.FC<GifHoverLinkProps> = ({ href, gif, className, child
         setPos(track(e));
     };
 
+    const hover = {
+        className,
+        onMouseEnter: show,
+        onMouseMove: (e: React.MouseEvent) => setPos((p) => p && track(e)),
+        onMouseLeave: () => setPos(null),
+    };
+
     return (
         <>
-            <a
-                className={className}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onMouseEnter={show}
-                onMouseMove={(e) => setPos((p) => p && track(e))}
-                onMouseLeave={() => setPos(null)}
-            >
-                {children}
-            </a>
+            {href
+                ? <a {...hover} href={href} target="_blank" rel="noopener noreferrer">{children}</a>
+                : <span {...hover}>{children}</span>}
             {/* Portal to <body> so the panel's slide-in transform can't offset the fixed position */}
             {pos && createPortal(
                 <img className="gif-hover" src={gif} alt="" aria-hidden="true" style={{ left: pos.x, top: pos.y }} />,
