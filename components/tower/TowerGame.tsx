@@ -3,13 +3,13 @@
 // text (title, cards, dialogue, menus, dossier) as real HTML over it.
 import "@fontsource/vt323";
 import "@/components/tower/tower.css";
-import Link from "next/link";
 import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createGame, type GameHandle, type UiState } from "@/game/flow/game";
 import { FLOORS, TEST_FLOOR } from "@/game/story/floors";
 import type { FloorDef } from "@/game/story/types";
 import TowerOverlay from "@/components/tower/TowerOverlay";
 import TouchControls from "@/components/tower/TouchControls";
+import { SITE_URL } from "@/lib/content";
 
 const ASPECT = 16 / 9;
 
@@ -63,7 +63,7 @@ const TowerGame: React.FC = () => {
     return (
         <main className="tower" aria-label="DogeKing Tower, a playable version of Minh Pham's portfolio">
             <p className="tower-sr">
-                This is a game version of Minh Pham&apos;s portfolio. For the same information as plain text, visit the <Link href="/">main site</Link> or open the Dossier from the pause menu.
+                This is a game version of Minh Pham&apos;s portfolio. For the same information as plain text, visit the <a href={SITE_URL}>main site</a> or open the Dossier from the pause menu.
             </p>
             <div className="tower-frame" ref={frameRef}>
                 <canvas ref={canvasRef} className="tower-canvas" aria-hidden="true" />
@@ -72,7 +72,7 @@ const TowerGame: React.FC = () => {
             <div className="tower-rotate" role="alert">
                 <div className="tower-rotate-phone" aria-hidden="true" />
                 <p>Turn your phone sideways to enter the tower.</p>
-                <Link href="/">Or go back to the room</Link>
+                <a href={SITE_URL}>Or go back to dogekingkong.com</a>
             </div>
         </main>
     );
@@ -101,7 +101,7 @@ const Overlay: React.FC<{ game: GameHandle; floors: FloorDef[]; coarse: boolean 
                     if (n >= 1 && n <= d.choices.length) dispatch({ type: "choose", index: n - 1 });
                 } else if (["Enter", "Space", "KeyJ"].includes(e.code)) dispatch({ type: "advance" });
             }
-            if (s.screen === "play" && e.code === "KeyR") dispatch({ type: "restart" });
+            if (s.screen === "play" && e.code === "KeyR") dispatch({ type: "retry" });
             if (s.screen === "replay") {
                 if (e.code === "ArrowRight" || e.code === "KeyD") dispatch({ type: "replaySpeed", speed: 4 });
             }

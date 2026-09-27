@@ -1,38 +1,51 @@
-// R · Penthouse: the hand-drawn room from the main site, at night. DogeKing.
+// R · Penthouse: his bedroom, redrawn as pixel furniture you can fight on. DogeKing.
+import { SITE_URL } from "@/lib/content";
 import type { Script } from "@/game/story/types";
 import type { StageDef } from "@/game/world/stage";
 
 const MEET: Script = [
     { who: "doge", text: "So. You're the headhunter." },
-    { who: "doge", text: "Seven floors. Most recruiters stop at the lobby.", interrupt: { label: "Can we skip the fight?", goto: "skip" } },
+    {
+        who: "doge",
+        text: "Seven floors. Most recruiters stop at the lobby and send a 'quick question' on LinkedIn.",
+        interrupt: { label: "Can we skip the fight?", goto: "skip" },
+    },
     { who: "doge", text: "Let's see if you're worth my email.", end: true },
-    { id: "skip", who: "doge", text: "No. But that was a very recruiter thing to say. En garde.", end: true },
+    { id: "skip", who: "doge", text: "Hell no. You climbed all this way. But that was a very recruiter thing to say. Respect.", end: true },
 ];
 
+const site = SITE_URL.replace(/^https?:\/\//, "");
+
 export const UNMASK: Script = [
-    { who: "doge", text: "Okay. Okay! You win." },
+    { who: "doge", text: "Okay! OKAY. Truce. You win. Jesus Christ." },
     { who: "system", text: "The mask comes off.", action: "unmask" },
     {
         who: "doge",
         portrait: "minh",
-        text: "Minh Pham. Nice to meet you. You're not here to take me out, are you?",
+        text: "Minh Pham. Nice to meet you. So is this a hit, or a job offer?",
         choices: [
-            { label: "I'm here to hire you.", goto: "hire" },
+            { label: "Job offer.", goto: "hire" },
             { label: "Why the tower?", goto: "why" },
             { label: "Just give me your email.", goto: "contact" },
         ],
     },
-    { id: "why", who: "doge", portrait: "minh", text: "A portfolio should be fun to visit. The quiet version is downstairs, if you'd rather read.", goto: "hire2" },
-    { id: "hire", who: "doge", portrait: "minh", text: "Ha. I figured. Your file said headhunter.", goto: "hire2" },
-    { id: "hire2", who: "doge", portrait: "minh", text: "Here's how to reach me. Email's fastest." , goto: "contact" },
-    { id: "contact", who: "doge", portrait: "minh", text: "Thanks for climbing all the way up. Seriously.", end: true },
+    { id: "hire", who: "doge", portrait: "minh", text: "Ha. I knew it. Nobody says 'headhunter' unless they mean LinkedIn.", goto: "hire2" },
+    {
+        id: "why",
+        who: "doge",
+        portrait: "minh",
+        text: `A portfolio should be fun to visit. The quiet version lives at ${site}, if you'd rather read like a normal person.`,
+        goto: "hire2",
+    },
+    { id: "hire2", who: "doge", portrait: "minh", text: "Here's how to reach me. Email's fastest. Carrier pigeon is slower, but funnier.", goto: "contact" },
+    { id: "contact", who: "doge", portrait: "minh", text: "Thanks for climbing all the way up. Seriously. Most people rage-quit at the code blocks.", end: true },
 ];
 
 export const LAIR: StageDef = {
     id: "R-1",
     title: "The room",
     theme: "penthouse",
-    time: 150,
+    time: 180,
     boss: true,
     talk: [{ x: 1, script: MEET }],
     map: [

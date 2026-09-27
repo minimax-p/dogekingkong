@@ -10,7 +10,6 @@ import { loadSave, saveSave, type SaveData, type Settings } from "@/game/flow/sa
 import { makeStore, type Store } from "@/game/flow/store";
 import { makeLayers, renderWorld, type HudOpts } from "@/game/render/renderer";
 import { makePost, type Post, type PostParams } from "@/game/render/post";
-import { preloadImages } from "@/game/render/images";
 import type { FloorDef, Line, Script } from "@/game/story/types";
 import { chestY } from "@/game/world/player";
 import { parseStage, type Stage } from "@/game/world/stage";
@@ -40,6 +39,7 @@ export type UiState = {
     dialogue: DialogueView | null;
     toast: { text: string; key: number } | null;
     deathLine: string;
+    clearLine: string;
     deaths: number;
     skipOffer: boolean;
     settings: Settings;
@@ -64,6 +64,7 @@ export type Action =
     | { type: "resume" }
     | { type: "menu"; menu: UiState["menu"] }
     | { type: "restart" }
+    | { type: "retry" } // back to the last checkpoint
     | { type: "skipStage" }
     | { type: "gotoFloor"; floor: number }
     | { type: "advance" } // dialogue: next line / finish typing
@@ -73,17 +74,39 @@ export type Action =
     | { type: "replaySpeed"; speed: number }
     | { type: "skip" }; // skip a replay or a card
 
-const DEATH_LINES: Record<string, string> = {
-    bullet: "Nope. That won't work.",
-    shotgun: "Nope. That won't work.",
-    punch: "Nope. That won't work.",
-    shield: "Nope. That won't work.",
-    laser: "Nope. That won't work.",
-    bug: "Nope. That won't work.",
-    shuttle: "Nope. That won't work.",
-    fall: "Nope. That won't work.",
-    time: "Too slow. That won't work.",
+// What the Headhunter tells himself on the way back. The first death gets the
+// classic; after that it depends on what got you, and how many times.
+const DEATH_LINES: Record<string, string[]> = {
+    bullet: ["Nope. That won't work.", "No. Bullets are faster than LinkedIn messages.", "Nah. Slash the bullet. It's a whole thing."],
+    shotgun: ["Nope. That won't work.", "No. Four pellets. Zero chill.", "Nah. Don't hug the guy with the shotgun."],
+    punch: ["Nope. That won't work.", "No. He's six-foot-four of pure HR violation.", "Nah. Roll through him. He can't turn that fast."],
+    shield: ["Nope. That won't work.", "No. You don't slash a firewall from the front.", "Nah. Get behind it. Firewalls hate that."],
+    laser: ["Nope. That won't work.", "No. You don't walk through lasers. That's step one.", "Nah. The lasers have a schedule. Read it."],
+    bug: ["Nope. That won't work.", "No. Squash the bug before it squashes you.", "Nah. It's not a feature. Kill it."],
+    shuttle: ["Nope. That won't work.", "No. That's a shuttlecock to the face. Humiliating.", "Nah. Slash it back. Rally."],
+    fall: ["Nope. That won't work.", "Gravity: 1. You: 0.", "No. The floor is not a checkpoint."],
+    time: ["Too slow. The candidate took another offer.", "Too slow. He's already on a coffee chat with Google.", "No. Clock's out. So is the job."],
 };
+const EXTRA_DEATHS = [
+    "No. That's how you get a one-star Glassdoor review.",
+    "Nah. HR would never sign off on that.",
+    "No. Even the interns are laughing.",
+    "Nope. Maybe try the other way. The one where you live.",
+];
+const deathLine = (cause: string, n: number) => {
+    const set = DEATH_LINES[cause] ?? DEATH_LINES.bullet;
+    if (n <= 1) return set[0];
+    // Mostly the cause-specific tips, with the odd general jab mixed in
+    if (n % 4 === 0) return EXTRA_DEATHS[(n / 4 - 1) % EXTRA_DEATHS.length];
+    return set[1 + (n % (set.length - 1))];
+};
+const CLEAR_LINES = [
+    "Yeah. That should work.",
+    "Yeah. That should work.",
+    "Yeah. Clean. Put it on the résumé.",
+    "Yeah. That should work. Nobody saw that. Probably.",
+    "Yeah. Ten out of ten. No notes.",
+];
 
 export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts: { floor?: number; stage?: number; onAction?: (name: string) => void } = {}): GameHandle => {
     const save = loadSave();
@@ -97,6 +120,7 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
         dialogue: null,
         toast: null,
         deathLine: "",
+        clearLine: CLEAR_LINES[0],
         deaths: 0,
         skipOffer: false,
         settings: save.settings,
@@ -107,7 +131,6 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
     });
 
     getAtlas();
-    preloadImages(floors.flatMap((f) => f.stages));
     const { layers, canvases } = makeLayers();
     let post: Post = makePost(display);
     store.set({ gl: post.gl });
@@ -127,6 +150,9 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
     let ghost: { world: World; tape: Input[]; i: number } | null = null;
     const talked = new Set<string>();
     let bossT = 0;
+    // The last checkpoint reached on this stage: the world as it was, and how
+    // much of the tape led there (so the replay still runs from the start)
+    let checkpoint: { world: World; tapeLen: number; time: number } | null = null;
 
     function newWorld() {
         const s = store.get();
@@ -149,6 +175,7 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
         replay = null;
         prevTape = null;
         ghost = null;
+        checkpoint = null;
         audio?.music(floors[f].music);
     };
 
@@ -265,13 +292,22 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
     };
 
     // ---- Stage flow
-    const restartStage = () => {
+    const restartStage = (fromStart = false) => {
         bossT = 0;
-        if (rec.tape.length > 30) prevTape = rec.tape;
-        world = newWorld();
-        rec = makeRecorder();
+        if (rec.tape.length > 30) prevTape = rec.tape.slice();
+        if (fromStart) checkpoint = null;
         replay = null;
-        ghost = stage.def.ghost && prevTape ? { world: newWorld(), tape: prevTape, i: 0 } : null;
+        if (checkpoint) {
+            // Back to the checkpoint: the tape keeps everything up to it
+            world = cloneWorld(checkpoint.world);
+            rec.tape.length = checkpoint.tapeLen;
+            rec.snaps = rec.snaps.filter((q) => q.time <= checkpoint!.time);
+        } else {
+            world = newWorld();
+            rec = makeRecorder();
+        }
+        const from = checkpoint ? checkpoint.tapeLen : 0;
+        ghost = stage.def.ghost && prevTape && prevTape.length > from ? { world: checkpoint ? cloneWorld(checkpoint.world) : newWorld(), tape: prevTape, i: from } : null;
         setScreen("play");
     };
 
@@ -379,11 +415,15 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
                 audio?.events(world.events, world, false);
                 for (const e of world.events) {
                     if (e.type === "pickup" && e.v === 2) toast(`FILE RECOVERED · ${floor().name}`);
+                    if (e.type === "checkpoint" && !world.dead) {
+                        checkpoint = { world: cloneWorld(world), tapeLen: rec.tape.length, time: world.time };
+                        toast("CHECKPOINT · Progress saved. Dignity not included.");
+                    }
                 }
                 audio?.setFocus(world.focus, world.dead);
                 if (world.dead && world.deadT > 40) {
                     const d = s.deaths + 1;
-                    store.set({ deathLine: DEATH_LINES[world.deathCause] ?? DEATH_LINES.bullet, deaths: d, skipOffer: d >= 3 });
+                    store.set({ deathLine: deathLine(world.deathCause, d), deaths: d, skipOffer: d >= 3 });
                     setScreen("dead");
                     audio?.tapeStop();
                 }
@@ -393,6 +433,9 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
                     if (bossT > 80) world.won = true;
                 }
                 if (world.won) {
+                    // The classic line for the first couple of clears, then some variety
+                    const n = s.save.cleared.length;
+                    store.set({ clearLine: n < 2 ? CLEAR_LINES[0] : CLEAR_LINES[(n * 7) % CLEAR_LINES.length] });
                     setScreen("clear");
                     audio?.sting("clear");
                 }
@@ -535,7 +578,7 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
                 const k = Math.min(1, screenT / REWIND_STEPS);
                 const eased = 1 - (1 - k) * (1 - k);
                 if (snaps.length) {
-                    const t0 = snaps[0].time;
+                    const t0 = checkpoint ? Math.max(snaps[0].time, checkpoint.time) : snaps[0].time;
                     const t1 = snaps[snaps.length - 1].time;
                     const target = t1 - (t1 - t0) * eased;
                     let lo = 0;
@@ -643,7 +686,10 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
                 break;
             case "restart":
                 store.set({ paused: false, menu: null });
-                if (["play", "dead", "clear", "rewind"].includes(s.screen)) restartStage();
+                if (["play", "dead", "clear", "rewind"].includes(s.screen)) restartStage(true);
+                break;
+            case "retry":
+                if (s.screen === "play" && !s.paused) restartStage();
                 break;
             case "skipStage":
                 store.set({ paused: false, menu: null });
@@ -724,6 +770,13 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
             post = { render: () => {}, resize: () => {}, gl: false };
         },
     };
+};
+
+// A deep copy of the world; the stage is static and shared
+const cloneWorld = (w: World): World => {
+    const { stage, ...rest } = w;
+    const copy = (typeof structuredClone === "function" ? structuredClone(rest) : JSON.parse(JSON.stringify(rest))) as Omit<World, "stage">;
+    return { ...copy, stage };
 };
 
 // "3:59:40" plus game time, for the tape's on-screen clock

@@ -169,7 +169,7 @@ export const updateLasers = (w: World) => {
                     emit(w, "sentry", (l.x1 + l.x2) / 2, l.y1);
                     for (const e of w.enemies) {
                         if (e.kind === "sentry" && e.wire === l.id && e.state !== "dead") {
-                            e.data.active = 300;
+                            e.data.active = 200;
                             e.aware = true;
                             e.cd = 10;
                         }

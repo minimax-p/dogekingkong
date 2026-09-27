@@ -8,11 +8,10 @@ import type { Theme } from "@/game/render/themes";
 import type { PropDef } from "@/game/world/stage";
 import type { World } from "@/game/world/types";
 import { FAILING } from "@/game/story/stages/suite";
-import { pixelArt } from "@/game/render/images";
 
 type G = CanvasRenderingContext2D;
 
-export const SETPIECES = new Set(["furniture", "crew", "calendar", "figma", "globe", "keypad", "clock", "testwall", "code", "terminal", "band", "lights", "legacy", "report", "signal"]);
+export const SETPIECES = new Set(["crew", "calendar", "figma", "globe", "keypad", "clock", "testwall", "code", "terminal", "band", "lights", "legacy", "report", "signal"]);
 
 // Break text into lines that fit a width (in characters)
 const wrap = (text: string, max: number) => {
@@ -56,12 +55,6 @@ export const drawSetpiece = (g: G, p: PropDef, w: World, th: Theme, x: number, y
     const ph = Math.round((p.h ?? 1) * TILE);
     const pl = w.player;
     switch (p.kind) {
-        case "furniture": {
-            // A piece of the hand-drawn room from the main site
-            const img = pixelArt(`/assets/${p.text}-colored.svg`, pw);
-            if (img) g.drawImage(img, Math.round(x), Math.round(y - img.height));
-            break;
-        }
         case "crew": {
             // A hologram crewmate at a desk; says a line when you pass
             const flick = t % 90 < 2 ? 0.3 : 0.75;

@@ -13,7 +13,7 @@ import { groundBelow, moveBody } from "@/game/world/physics";
 import { chestY, isInvulnerable } from "@/game/world/player";
 import type { Enemy, Face, World } from "@/game/world/types";
 
-export const BOSS_QUIPS = ["Okay. Not bad.", "Deploying to production. Hope you're ready.", "Fine. Guitar solo."];
+export const BOSS_QUIPS = ["Ow. Okay. That one was rude.", "Deploying to prod. On a Friday. Pray for me.", "Fine. Guitar solo. You asked for this."];
 
 const setState = (e: Enemy, s: Enemy["state"]) => {
     e.state = s;
@@ -72,6 +72,9 @@ export const hitBoss = (w: World, e: Enemy, a: number, source: "slash" | "bullet
         w.bullets = w.bullets.filter((b) => b.owner === "player");
         return;
     }
+    // Each phase down is a checkpoint
+    w.flags.cp = (w.flags.cp ?? 0) + 1;
+    emit(w, "checkpoint", e.x, e.y);
     setState(e, "hurt");
     e.vx = Math.cos(a) * 4;
     e.vy = -3;

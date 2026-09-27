@@ -86,7 +86,7 @@ export const DOSSIER: DossierEntry[] = [
         title: "Contact",
         kicker: "The penthouse",
         paragraphs: ["Email is the best way to reach him — or find him on LinkedIn and GitHub."],
-        projects: proj("This Room"),
+        projects: proj("DogeKing Tower"),
         links: [
             { label: SOCIALS.email, href: `mailto:${SOCIALS.email}` },
             { label: "LinkedIn", href: SOCIALS.linkedin },

@@ -5,6 +5,7 @@
 //     the intel file and the exit (a rough model of the Headhunter's moves).
 //  3. The simulation is deterministic, so replays match the run.
 //  4. Slow motion and deflects behave as designed.
+//  5. Checkpoints: going back to one and finishing gives the same replay.
 import { emptyInput, type Input } from "@/game/engine/input";
 import { FOCUS_WORLD } from "@/game/engine/constants";
 import { makeRng, rand } from "@/game/engine/rng";
@@ -205,7 +206,7 @@ console.log("Feel");
         }
         speeds.push(dist / 10);
     }
-    check(speeds[0] * 60 > 480, `bullets should cross the 480 px screen in under a second (${(speeds[0] * 60).toFixed(0)} px/s)`);
+    check(speeds[0] * 60 > 380, `bullets should cross the 480 px screen in about a second (${(speeds[0] * 60).toFixed(0)} px/s)`);
     check(speeds[1] / speeds[0] < FOCUS_WORLD + 0.12, `slow motion should slow bullets to about ${FOCUS_WORLD}× (${(speeds[1] / speeds[0]).toFixed(2)}×)`);
 
     // Waiting for the bullet and slashing it sends it back into the guard
@@ -224,6 +225,38 @@ console.log("Feel");
         stepWorld(w, inp);
     }
     check(w.deflects === 1 && w.cleared && !w.dead, "a deflected bullet should kill the guard");
+}
+
+// ---- 5. Checkpoints
+console.log("Checkpoints");
+{
+    const def = stages.find((d) => d.id === "G-1")!;
+    const s = parseStage(def);
+    const clone = (w: World): World => {
+        const { stage, ...rest } = w;
+        return { ...structuredClone(rest), stage };
+    };
+    // Run right, hopping, until the first checkpoint
+    const walk = (i: number): Input => ({ ...emptyInput(), mx: 1, jump: i % 24 === 0, jumpHeld: i % 24 < 12 });
+    const live = createWorld(s, 3);
+    const tape: Input[] = [];
+    let cp: { world: World; len: number } | null = null;
+    for (let i = 0; i < 900 && !cp; i++) {
+        const inp = walk(i);
+        tape.push(inp);
+        stepWorld(live, inp);
+        if (live.events.some((e) => e.type === "checkpoint")) cp = { world: clone(live), len: tape.length };
+    }
+    check(cp !== null, "G-1: walking right should reach the first checkpoint");
+    if (cp) {
+        // Carry on from the saved copy, then replay the whole tape from the start
+        const resumed = cp.world;
+        const more: Input[] = Array.from({ length: 200 }, (_, i) => ({ ...emptyInput(), mx: i % 50 < 30 ? 1 : -1, jump: i % 33 === 0, jumpHeld: true, attack: i % 17 === 0, ax: 30, ay: 0 }));
+        for (const inp of more) stepWorld(resumed, inp);
+        const replay = createWorld(s, 3);
+        for (const inp of [...tape.slice(0, cp.len), ...more]) stepWorld(replay, inp);
+        check(sig(resumed) === sig(replay), "a run resumed from a checkpoint should replay exactly from the start");
+    }
 }
 
 if (failures) {

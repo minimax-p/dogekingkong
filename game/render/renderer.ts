@@ -8,7 +8,7 @@ import { bakeStage, type Baked } from "@/game/render/env";
 import { drawText, textWidth } from "@/game/render/font";
 import { ANIM_PROPS, drawAnimProp, glow, hexA, R } from "@/game/render/props";
 import { drawSetpiece, SETPIECES } from "@/game/render/setpieces";
-import { blinkOn } from "@/game/world/physics";
+import { blinkOn, rayHit } from "@/game/world/physics";
 import { bubble, drawSetpieceOver } from "@/game/render/setpieces";
 import { BOSS_QUIPS } from "@/game/world/boss";
 import { DOOR_W } from "@/game/world/physics";
@@ -511,9 +511,17 @@ const drawEnemy = (a: CanvasRenderingContext2D, e: Enemy, atlas: ReturnType<type
     }
     const y = e.kind === "drone" ? e.y + 2 : e.y;
     drawSprite(a, s, frame, e.x, y, e.face, { rot, white });
-    // Muzzle glint just before a shot: the tell
+    // The tell: a dotted aim line while they line up, then a glint just before the shot
     if ((e.kind === "guard" || e.kind === "enforcer" || e.kind === "drone") && e.state === "aim") {
         const k = EK[e.kind];
+        const prog = Math.min(1, e.t / k.aim);
+        const sx = e.x + Math.cos(e.aim) * 10;
+        const sy = e.y - 14 + Math.sin(e.aim) * 10 + (e.kind === "drone" ? 10 : 0);
+        const end = rayHit(w, sx, sy, sx + Math.cos(e.aim) * 260, sy + Math.sin(e.aim) * 260);
+        const len = end ? Math.hypot(end.x - sx, end.y - sy) : 260;
+        a.fillStyle = hexA(e.kind === "enforcer" ? PAL.amber : PAL.hot, 0.15 + prog * 0.45);
+        const gap = prog > 0.75 ? 2 : 4;
+        for (let d = 0; d < len; d += gap) a.fillRect(Math.round(sx + Math.cos(e.aim) * d), Math.round(sy + Math.sin(e.aim) * d), 1, 1);
         if (e.t > k.aim - 9 && e.t < k.aim - 2) {
             const mx = e.x + Math.cos(e.aim) * 12;
             const my = e.y - 14 + Math.sin(e.aim) * 12 + (e.kind === "drone" ? 10 : 0);

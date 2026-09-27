@@ -1,8 +1,7 @@
 "use client";
 // The top of the tower: his contact card, then the credits.
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { ABOUT, PROFILE, RESUME_URL, SOCIALS, WORK } from "@/lib/content";
+import { ABOUT, PROFILE, RESUME_URL, SITE_URL, SOCIALS, WORK } from "@/lib/content";
 
 const Ending: React.FC = () => {
     const [copied, setCopied] = useState(false);
@@ -68,7 +67,7 @@ const Ending: React.FC = () => {
                 <button type="button" onClick={() => setCredits(true)}>
                     Roll credits
                 </button>
-                <Link href="/">Back to the room</Link>
+                <a href={SITE_URL}>Back to dogekingkong.com</a>
                 <button type="button" onClick={() => window.location.reload()}>
                     Climb again
                 </button>
@@ -83,16 +82,25 @@ const Credits: React.FC<{ onBack: () => void }> = ({ onBack }) => (
             <p className="tw-panel-kicker">DOGEKING TOWER</p>
             <h3>Cast</h3>
             <p>
-                The Headhunter <span>You</span>
+                The Headhunter <span>You. Allegedly a professional.</span>
             </p>
             <p>
-                DogeKing <span>Minh Pham</span>
+                DogeKing <span>Minh Pham. Such engineer. Very hire.</span>
             </p>
             <p>
-                The Client <span>A hiring manager with a deadline</span>
+                The Client <span>A hiring manager with a deadline and zero chill</span>
             </p>
             <p>
-                local-bot <span>Itself</span>
+                local-bot <span>Itself. It&apos;s been through a lot.</span>
+            </p>
+            <p>
+                Security <span>Robots in suits. Unpaid. Unionizing.</span>
+            </p>
+            <p>
+                The Firewall <span>Blocked you. Respectfully.</span>
+            </p>
+            <p>
+                Recruiter #12 <span>Still in the elevator</span>
             </p>
             <h3>Floors</h3>
             {WORK.slice()
@@ -117,6 +125,9 @@ const Credits: React.FC<{ onBack: () => void }> = ({ onBack }) => (
             </p>
             <p>
                 Inspired by <span>Katana Zero</span>
+            </p>
+            <p>
+                Stunts <span>Several robots were harmed. They&apos;re fine. They&apos;re robots.</span>
             </p>
             <p className="tw-credits-end">Thanks for playing. Click to go back.</p>
         </div>

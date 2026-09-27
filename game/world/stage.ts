@@ -65,6 +65,7 @@ export type StageDef = {
     talk?: { x: number; script: import("@/game/story/types").Script }[]; // conversations when the Headhunter reaches column x
     ghost?: boolean; // show a ghost of the last attempt
     boss?: boolean; // no exit: the stage ends when DogeKing is down
+    checkpoints?: [number, number][]; // tiles; dying sends you back to the last one reached
 };
 
 export type Stage = {

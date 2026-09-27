@@ -7,7 +7,6 @@ import { FLOORS } from "@/game/story/floors";
 import { parseStage } from "@/game/world/stage";
 import { createWorld, stepWorld } from "@/game/world/world";
 import { emptyInput } from "@/game/engine/input";
-import { preloadImages } from "@/game/render/images";
 
 const StageView: React.FC = () => {
     const ref = useRef<HTMLCanvasElement>(null);
@@ -19,13 +18,11 @@ const StageView: React.FC = () => {
         const stage = parseStage(def);
         const w = createWorld(stage, 1);
         for (let i = 0; i < steps; i++) stepWorld(w, emptyInput());
-        preloadImages([def]);
         const c = ref.current!;
         c.width = Math.max(W, stage.pw);
         c.height = Math.max(H, stage.ph);
         const g = c.getContext("2d")!;
         const { layers, canvases } = makeLayers();
-        const draw = () => {
         for (let y = 0; y < stage.ph; y += H) {
             for (let x = 0; x < stage.pw; x += W) {
                 w.cam.x = Math.min(x, Math.max(0, stage.pw - W));
@@ -36,10 +33,6 @@ const StageView: React.FC = () => {
                 for (const cv of canvases) g.drawImage(cv, w.cam.x, w.cam.y);
             }
         }
-        };
-        draw();
-        // Images (the penthouse furniture) arrive a moment later
-        setTimeout(draw, 700);
         document.title = `stage ${id} ${stage.pw}x${stage.ph}`;
     }, []);
     return <canvas ref={ref} style={{ imageRendering: "pixelated", display: "block" }} />;

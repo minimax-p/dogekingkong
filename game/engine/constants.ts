@@ -12,9 +12,9 @@ export const FOCUS_PLAYER = 0.45;
 export const FOCUS_IN_STEPS = 6; // real steps to reach full slow motion
 export const FOCUS_OUT_STEPS = 8;
 export const BATTERY_CELLS = 11;
-export const BATTERY_DRAIN = BATTERY_CELLS / 360; // full battery lasts 6 real seconds
-export const BATTERY_FILL = BATTERY_CELLS / 360; // and refills in 6
-export const BATTERY_FILL_DELAY = 30; // real steps before refilling starts
+export const BATTERY_DRAIN = BATTERY_CELLS / 540; // full battery lasts 9 real seconds
+export const BATTERY_FILL = BATTERY_CELLS / 300; // and refills in 5
+export const BATTERY_FILL_DELAY = 20; // real steps before refilling starts
 
 // Hit-stop, in real steps
 export const STOP_KILL = 5;
