@@ -63,6 +63,16 @@ const FileBody: React.FC<{ d: DossierEntry }> = ({ d }) => (
                 )}
             </p>
         )}
+        {d.rich?.some((part) => typeof part !== "string" && part.gif) && (
+            <div className="tw-file-clips">
+                {d.rich.map((part) =>
+                    typeof part !== "string" && part.gif ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- short animated clips, loaded only when the file is open
+                        <img key={part.gif} src={part.gif} alt={part.label} loading="lazy" />
+                    ) : null,
+                )}
+            </div>
+        )}
         {d.work && (
             <div className="tw-file-job">
                 <p className="tw-file-role">

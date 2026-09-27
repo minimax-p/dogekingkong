@@ -6,14 +6,15 @@ import type { Look, Pose } from "@/game/art/rig";
 // The Headhunter: trench coat, cyan visor, magenta scarf, a letter opener.
 
 const HH_HEAD = [
-    "..hhhh..",
-    ".hHHhhh.",
-    "hHhhhhhh",
-    "hhhVVVVV",
-    "hhhvvvvc",
-    ".hhsssss",
-    "..ssss..",
-    "..kk....",
+    "...h.h...",
+    "..hhhhhh.",
+    ".hHHHhhhh",
+    "hhHhhhhhh",
+    "hhhhhVVVV",
+    "hhhhvvvvw",
+    ".hhssssss",
+    "..hsssssS",
+    "...ssss..",
 ] as const;
 
 export const HEADHUNTER: Look = {
@@ -24,24 +25,27 @@ export const HEADHUNTER: Look = {
     fore: 5,
     legW: 3,
     armW: 2,
-    coatLen: 9,
-    coatFlare: 1,
+    coatLen: 12,
+    coatFlare: 2,
     shoulderW: 2.5,
+    outfit: "coat",
+    collar: true,
     colors: {
-        coat: "#3b3272",
-        coatHi: "#8279d6",
-        coatLo: "#28215a",
-        pants: "#231d44",
-        pantsLo: "#17122f",
+        coat: "#3f3480",
+        coatHi: "#8f86e6",
+        coatLo: "#271f5a",
+        pants: "#1d1838",
+        pantsLo: "#120f26",
         boot: "#0b0916",
+        bootHi: "#4a4088",
         glove: "#141022",
-        belt: "#17122f",
+        belt: "#120f26",
         outline: PAL.ink,
-        rim: "#a8a0f2",
+        rim: "#6e64c4",
     },
     head: HH_HEAD,
-    headColors: { h: "#1f1a3d", H: "#4a4088", V: PAL.cyan, v: "#2bb5dd", c: "#d8faff", s: "#dcae96", k: PAL.hot },
-    headOffset: [-4, -8],
+    headColors: { h: "#1b1733", H: "#4f45a0", V: PAL.cyan, v: "#1fa5cc", w: "#eafcff", s: "#e4b69c", S: "#b88a74" },
+    headOffset: [-4, -9],
     weapon: "blade",
 };
 
@@ -268,54 +272,204 @@ export const HH_ANIMS: Record<string, Anim> = {
 // ---------------------------------------------------------------------------
 // Security bots: suits, Shiba masks, glowing eyes.
 
-const MASK = [
-    ".e....e.",
-    "eEe..eEe",
-    "emmmmmme",
-    "mmmwmmmw",
-    "mmmmmmnn",
-    ".mcccccc",
-    "..cccc..",
-    "..tt....",
+// Each kind has its own build, outfit and headgear, so they read at a glance:
+//   guard    – navy suit, peaked cap, pistol
+//   bouncer  – huge, robot arms, black tee, shades, fists
+//   enforcer – olive vest, beanie and respirator, shotgun
+//   firewall – riot armor, helmet with a visor, shield
+// Under it all, the same white Shiba mask with LED eyes.
+
+const MASK_COLORS = {
+    m: "#ece6da",
+    M: "#bdb4a4",
+    e: "#c9c0b0",
+    E: "#e8a3a3",
+    n: "#2a2230",
+    k: "#8a8070",
+    t: "#dfe6ff",
+};
+
+const GUARD_HEAD = [
+    "...bbbbb...",
+    "..bBBBBBb..",
+    ".bbbbybbbb.",
+    "..bbbbbbbbbb",
+    "..mmmmmmmm.",
+    ".Mmmmmmrrm.",
+    ".Mmmmmmmmnn",
+    ".Mmmmmmmmm.",
+    "..Mmmmmkkm.",
+    "...tttt....",
 ] as const;
 
-const MASK_COLORS = { e: "#a8845f", E: "#6a4a3a", m: "#c9a27a", w: PAL.hot, n: "#2a1f2a", c: "#efe2c6", t: "#d8d4ea" };
+const BOUNCER_HEAD = [
+    "..e.....e..",
+    ".eEe...eEe.",
+    ".eMmmmmmme.",
+    "Mmmmmmmmmm.",
+    "MmmgggggggG",
+    "MmmggGgggGg",
+    "Mmmmmmmmnnn",
+    ".Mmmmmmmmm.",
+    "..MmkkkkMm.",
+    "...Mmmmm...",
+] as const;
 
-const botLook = (weapon: Look["weapon"], suit: string, suitHi: string, suitLo: string, tie: string, bulk = 0): Look => ({
+const ENFORCER_HEAD = [
+    "...wwwww...",
+    "..wWWWWWw..",
+    ".wwwwwwwww.",
+    ".wkwkwkwkw.",
+    ".Mmmmmmmmm.",
+    ".Mmmmmmrrm.",
+    ".Mmmmmppppp",
+    ".MmmmmpPPPp",
+    "..Mmmmppppp",
+    "...Mm......",
+] as const;
+
+const FIREWALL_HEAD = [
+    ".e......e..",
+    ".eaaaaaae..",
+    "aaAAAAAAaa.",
+    "aaaaaaaaaaa",
+    "aavvvvvvVva",
+    "aavVvvvvvva",
+    "aavvvvvvvva",
+    "aaMmmmmmnna",
+    ".aMmmmmmmm.",
+    "..aaaaaaa..",
+] as const;
+
+const BOT_BASE = {
     thigh: 6,
     shin: 7,
-    torso: 9 + bulk,
+    torso: 9,
     upper: 5,
     fore: 5,
-    legW: 3 + bulk * 0.5,
-    armW: 2 + bulk * 0.5,
+    legW: 3,
+    armW: 2,
     coatLen: 3,
     coatFlare: 0,
-    shoulderW: 3 + bulk,
-    colors: {
-        coat: suit,
-        coatHi: suitHi,
-        coatLo: suitLo,
-        pants: suitLo,
-        pantsLo: "#0f0d18",
-        boot: "#07060c",
-        glove: "#0f0d18",
-        shirt: "#d8d4ea",
-        tie,
-        outline: PAL.ink,
-        rim: "#8a86b0",
-    },
-    head: MASK,
-    headColors: MASK_COLORS,
-    headOffset: [-4, -8],
-    weapon,
-});
+    shoulderW: 3,
+};
 
-export const BOTS = {
-    bouncer: botLook("fists", "#332a42", "#5e5178", "#211a2d", PAL.hot, 1),
-    guard: botLook("pistol", "#2a2540", "#524a74", "#1b172b", PAL.hot),
-    enforcer: botLook("shotgun", "#3a2838", "#664c63", "#241822", PAL.amber),
-    firewall: botLook("shield", "#232b4a", "#46558c", "#171d34", PAL.cyan),
+export const BOTS: Record<"bouncer" | "guard" | "enforcer" | "firewall", Look> = {
+    guard: {
+        ...BOT_BASE,
+        outfit: "suit",
+        colors: {
+            coat: "#23305c",
+            coatHi: "#5a70b8",
+            coatLo: "#161f3e",
+            pants: "#1a2446",
+            pantsLo: "#10162c",
+            boot: "#07060c",
+            bootHi: "#3a3a58",
+            glove: "#0f0d18",
+            shirt: "#e6ecff",
+            tie: PAL.hot,
+            outline: PAL.ink,
+            rim: "#5a70b8",
+        },
+        head: GUARD_HEAD,
+        headColors: { ...MASK_COLORS, b: "#1f2b55", B: "#4a5f9f", y: PAL.amber, r: PAL.hot },
+        headOffset: [-5, -10],
+        weapon: "pistol",
+    },
+    bouncer: {
+        ...BOT_BASE,
+        thigh: 5,
+        shin: 6,
+        torso: 11,
+        upper: 6,
+        fore: 6,
+        legW: 4,
+        armW: 3.5,
+        shoulderW: 4.5,
+        chest: 1.5,
+        coatLen: 2,
+        outfit: "tee",
+        big: true,
+        colors: {
+            coat: "#1c1a24",
+            coatHi: "#4a4660",
+            coatLo: "#121018",
+            pants: "#2a2a38",
+            pantsLo: "#1a1a24",
+            boot: "#07060c",
+            bootHi: "#44445a",
+            glove: "#c9c8e0",
+            sleeve: "#8d8ca8",
+            sleeveLo: "#5a5a78",
+            sleeveHi: "#d6d5ee",
+            trim: "#ece8ff",
+            outline: PAL.ink,
+            rim: "#6a6888",
+        },
+        head: BOUNCER_HEAD,
+        headColors: { ...MASK_COLORS, g: "#0c0a14", G: PAL.peri },
+        headOffset: [-5, -10],
+        weapon: "fists",
+    },
+    enforcer: {
+        ...BOT_BASE,
+        torso: 10,
+        legW: 3.5,
+        armW: 2.5,
+        shoulderW: 3.5,
+        chest: 1,
+        coatLen: 4,
+        outfit: "vest",
+        colors: {
+            coat: "#4a5a34",
+            coatHi: "#7d935a",
+            coatLo: "#2f3a20",
+            pants: "#2c2c24",
+            pantsLo: "#1b1b16",
+            boot: "#0a0a08",
+            bootHi: "#44443a",
+            glove: "#14140f",
+            sleeve: "#2e2e3a",
+            sleeveLo: "#1c1c26",
+            sleeveHi: "#50506a",
+            trim: "#1e2414",
+            belt: "#1e2414",
+            outline: PAL.ink,
+            rim: "#7d935a",
+        },
+        head: ENFORCER_HEAD,
+        headColors: { ...MASK_COLORS, w: "#4a5a34", W: "#728a4c", k: "#2f3a20", r: PAL.amber, p: "#34343f", P: "#6a6a80" },
+        headOffset: [-5, -10],
+        weapon: "shotgun",
+    },
+    firewall: {
+        ...BOT_BASE,
+        torso: 10,
+        legW: 3.5,
+        armW: 2.5,
+        shoulderW: 3.5,
+        chest: 1,
+        outfit: "armor",
+        pads: true,
+        colors: {
+            coat: "#3a4a78",
+            coatHi: "#7f93d6",
+            coatLo: "#26315a",
+            pants: "#2a3252",
+            pantsLo: "#1a2038",
+            boot: "#0a0c14",
+            bootHi: "#46507a",
+            glove: "#14182a",
+            trim: "#5f73b8",
+            outline: PAL.ink,
+            rim: "#7f93d6",
+        },
+        head: FIREWALL_HEAD,
+        headColors: { ...MASK_COLORS, a: "#3a4a78", A: "#7f93d6", v: "#2a8fb8", V: "#c8f6ff" },
+        headOffset: [-5, -11],
+        weapon: "shield",
+    },
 };
 
 const BOT_STRIDE: Pose[] = [
@@ -415,28 +569,38 @@ export type { Anim };
 // ---------------------------------------------------------------------------
 // DogeKing: hoodie, crown, Shiba mask, and a guitar. Unmasked at the end.
 
-const CROWNED = [
-    ".y.y.y..",
-    ".yYyYy..",
-    ".e....e.",
-    "eEe..eEe",
-    "emmmmmme",
-    "mmmwmmmw",
-    "mmmmmmnn",
-    ".mcccccc",
-    "..cccc..",
-    "..hh....",
+// The Doge: tan fur, cream cheeks and muzzle, pointy ears, the raised
+// "eyebrow" spots and that sideways look. Crown on top, because of course.
+const DOGE_HEAD = [
+    "....y.y.y....",
+    "....yjyjy....",
+    "....YyyyY....",
+    "..d.......o..",
+    ".ddo.....ooo.",
+    ".dcoo...occo.",
+    ".dccoooooccoo",
+    "ddooooooooooo",
+    "ddoOooooooOoo",
+    "dokwooooookwo",
+    "doccoooooccccc",
+    ".dcccccccccnnc",
+    "..cccccccccCmc",
+    "...cCcccccCc..",
+    ".....cccccc...",
 ] as const;
 
-const MINH = [
-    "..hhhh..",
-    ".hhhhhhh",
-    "hhhhhhhh",
-    "hhhHssss",
-    "hhssesse",
-    ".hssssss",
-    "..sssm..",
-    "..hh....",
+// Minh, unmasked: messy hair and the sunglasses from his photo
+const MINH_HEAD = [
+    "...hhhh...",
+    ".hhhhhhhh.",
+    "hhhHHhhhhh",
+    "hhhhhhhhhh",
+    "hhhsshhhss",
+    "hhssggsgGs",
+    ".hsssssss.",
+    "..sssssSs.",
+    "...sssm...",
+    "....ss....",
 ] as const;
 
 const dogeLook = (unmasked: boolean): Look => ({
@@ -446,26 +610,31 @@ const dogeLook = (unmasked: boolean): Look => ({
     upper: 5,
     fore: 5,
     legW: 3,
-    armW: 2,
+    armW: 2.5,
     coatLen: 4,
     coatFlare: 0,
     shoulderW: 3,
+    chest: 0.5,
+    outfit: "hoodie",
+    hood: true,
     colors: {
-        coat: "#3a2350",
-        coatHi: "#7a5aa0",
-        coatLo: "#241634",
+        coat: "#4b2a7a",
+        coatHi: "#8e62cc",
+        coatLo: "#2e1850",
         pants: "#1d2340",
-        pantsLo: "#141830",
+        pantsLo: "#131830",
         boot: "#ece8ff",
-        glove: "#dcae96",
+        bootHi: "#ffffff",
+        glove: unmasked ? "#dcae96" : "#f7ecd6",
+        trim: "#ece8ff",
         outline: PAL.ink,
-        rim: "#b09ae0",
+        rim: "#8e62cc",
     },
-    head: unmasked ? MINH : CROWNED,
+    head: unmasked ? MINH_HEAD : DOGE_HEAD,
     headColors: unmasked
-        ? { h: "#15101f", H: "#2a2140", s: "#dcae96", e: "#1d1838", m: "#b0786a" }
-        : { ...MASK_COLORS, y: PAL.amber, Y: "#c99a4a", h: "#3a2350" },
-    headOffset: unmasked ? [-4, -8] : [-4, -10],
+        ? { h: "#17121f", H: "#3a3050", s: "#dcae96", S: "#b8876e", g: "#0c0a14", G: "#8c9eff", m: "#9a5a4a" }
+        : { y: PAL.amber, Y: "#c99a4a", j: PAL.hot, o: "#dba059", O: "#f6dca8", d: "#a86f34", c: "#f7ecd6", C: "#dcc49e", k: "#1a1016", w: "#fbf7ef", n: "#231619", m: "#8a5a4a" },
+    headOffset: unmasked ? [-5, -9] : [-6, -14],
     weapon: "guitar",
 });
 

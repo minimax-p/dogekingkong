@@ -204,7 +204,8 @@ export type EventType =
     | "sentry"
     | "bugHatch"
     | "ricochet"
-    | "win";
+    | "win"
+    | "checkpoint";
 
 export type GameEvent = { type: EventType; x: number; y: number; v?: number };
 

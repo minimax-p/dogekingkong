@@ -4,19 +4,20 @@ import type { StageDef } from "@/game/world/stage";
 // What the crew says as you pass their desks. These restate résumé facts;
 // swap in real quotes from teammates when you have them.
 export const CREW_LINES = [
-    "Six of us, five weeks, one Flutter app.",
-    "He ran the Git workflow for the whole team.",
-    "Dev phase, then test phase. He managed both.",
-    "He did about 80% of the testing himself.",
-    "He fixed about 30% of our critical bugs, too.",
-    "He designed and prototyped the whole app in Figma first.",
-];
+    "Six of us. Five weeks. One Flutter app. Zero regrets. Mostly.",
+    "He ran our Git workflow. Merge conflicts feared him.",
+    "Dev phase, then test phase. He ran both. Did he sleep? Unconfirmed.",
+    "He did about 80% of the testing himself. The rest of us provided vibes.",
+    "He fixed about 30% of our critical bugs. The other 70% fixed themselves. Kidding.",
+    "He designed and prototyped the whole app in Figma first. Like a grown-up.",
+]
 
 export const STANDUP: StageDef = {
     id: "2-1",
     title: "Standup",
     theme: "command",
-    time: 80,
+    time: 110,
+    checkpoints: [[19, 13], [43, 13]],
     map: [
         "################################################################",
         "#..............................................................#",
@@ -31,7 +32,7 @@ export const STANDUP: StageDef = {
         "#.....................?.g..........---b-..................g....#",
         "#...................=====================...........=========..#",
         "#...........................................|................$$#",
-        "#.@.....*.....f..................e..........|F.........e.....$$#",
+        "#.@.....*.....f..............#...e..........|F...............$$#",
         "################################################################",
         "################################################################",
         "################################################################",
@@ -63,7 +64,8 @@ export const LAUNCH: StageDef = {
     id: "2-2",
     title: "Launch",
     theme: "command",
-    time: 80,
+    time: 110,
+    checkpoints: [[8, 20], [8, 14], [10, 8]],
     map: [
         "##################################",
         "#.$$$............................#",
@@ -79,10 +81,10 @@ export const LAUNCH: StageDef = {
         "#..................---b---....?..#",
         "#.............=================..#",
         "#................................#",
-        "#.......F........................#",
+        "#.......b........................#",
         "#..===============...............#",
         "#................................#",
-        "#...........................g....#",
+        "#................................#",
         "#.............=================..#",
         "#................................#",
         "#.....E..........................#",
@@ -96,7 +98,7 @@ export const LAUNCH: StageDef = {
         "##################################",
         "##################################",
     ],
-    prompts: [{ from: 0, to: 34, text: "CLIMB · THE PLATFORMS LET YOU JUMP UP THROUGH THEM" }],
+    prompts: [{ from: 0, to: 34, text: "CLIMB · YOU CAN JUMP UP THROUGH THE PLATFORMS · CARDIO IS A FEATURE" }],
     props: [
         { kind: "window", x: 19, y: 26, w: 10, h: 5 },
         { kind: "window", x: 4, y: 19, w: 8, h: 3 },
@@ -106,6 +108,6 @@ export const LAUNCH: StageDef = {
         { kind: "lamp", x: 8, y: 4, h: 1, w: 3 },
         { kind: "lamp", x: 26, y: 1, h: 2, w: 4 },
         { kind: "neon", x: 5.5, y: 2.7, text: "SHIP IT", flip: true },
-        { kind: "crew", x: 22, y: 27, text: "Last week of the sprint. Up you go." },
+        { kind: "crew", x: 22, y: 27, text: "Last week of the sprint. Everyone's fine. Up you go." },
     ],
 };

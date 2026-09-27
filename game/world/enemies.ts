@@ -9,20 +9,22 @@ import { chestY, isInvulnerable } from "@/game/world/player";
 import { updateBoss } from "@/game/world/boss";
 import type { Enemy, EnemyKind, Face, World } from "@/game/world/types";
 
+// Tuned so each attack has a readable tell: aim times of 0.6–0.75 s, bullets
+// that cross the screen in about a second, and slow turns for shields.
 export const EK: Record<EnemyKind, { w: number; h: number; walk: number; run: number; alert: number; aim: number; cd: number; speed: number }> = {
-    bouncer: { w: 10, h: 22, walk: 0.9, run: 2.6, alert: 10, aim: 0, cd: 12, speed: 0 },
-    guard: { w: 10, h: 22, walk: 0.8, run: 2.2, alert: 14, aim: 24, cd: 45, speed: 9 },
-    enforcer: { w: 10, h: 22, walk: 0.7, run: 1.8, alert: 16, aim: 30, cd: 72, speed: 8 },
-    firewall: { w: 12, h: 22, walk: 0.7, run: 1.5, alert: 16, aim: 0, cd: 20, speed: 0 },
-    bug: { w: 8, h: 7, walk: 1.2, run: 3.6, alert: 6, aim: 0, cd: 40, speed: 0 },
-    drone: { w: 12, h: 10, walk: 0.8, run: 1.7, alert: 12, aim: 28, cd: 60, speed: 8 },
-    launcher: { w: 16, h: 18, walk: 0, run: 0, alert: 10, aim: 0, cd: 90, speed: 0 },
-    sentry: { w: 12, h: 8, walk: 0, run: 0, alert: 0, aim: 10, cd: 48, speed: 10 },
+    bouncer: { w: 10, h: 22, walk: 0.9, run: 2.4, alert: 18, aim: 0, cd: 16, speed: 0 },
+    guard: { w: 10, h: 22, walk: 0.8, run: 2.0, alert: 24, aim: 40, cd: 70, speed: 7.5 },
+    enforcer: { w: 10, h: 22, walk: 0.7, run: 1.7, alert: 26, aim: 46, cd: 90, speed: 7 },
+    firewall: { w: 12, h: 22, walk: 0.7, run: 1.4, alert: 22, aim: 0, cd: 26, speed: 0 },
+    bug: { w: 8, h: 7, walk: 1.2, run: 3.0, alert: 10, aim: 0, cd: 60, speed: 0 },
+    drone: { w: 12, h: 10, walk: 0.8, run: 1.5, alert: 24, aim: 48, cd: 100, speed: 6.5 },
+    launcher: { w: 16, h: 18, walk: 0, run: 0, alert: 14, aim: 0, cd: 120, speed: 0 },
+    sentry: { w: 12, h: 8, walk: 0, run: 0, alert: 0, aim: 12, cd: 80, speed: 8 },
     boss: { w: 10, h: 24, walk: 1, run: 3.2, alert: 0, aim: 0, cd: 0, speed: 9 },
 };
 
 const GRAV = 0.32;
-const VIEW = 280;
+const VIEW = 230;
 
 export const makeEnemy = (w: World, kind: EnemyKind, x: number, y: number, face: Face, patrol: [number, number] | null): Enemy => ({
     id: w.nextId++,
@@ -173,7 +175,7 @@ const updateBouncer = (w: World, e: Enemy, dt: number) => {
         case "windup":
             e.t += dt;
             e.vx = approach(e.vx, 0, 0.5 * dt);
-            if (e.t >= 16) {
+            if (e.t >= 24) {
                 e.state = "strike";
                 e.t = 0;
                 e.vx = e.face * 2.5;
@@ -233,7 +235,7 @@ const updateShooter = (w: World, e: Enemy, dt: number, sees: boolean) => {
             if (e.t >= k.aim) {
                 e.data.aimed = 1;
                 if (e.kind === "enforcer") {
-                    for (let i = 0; i < 5; i++) fireBullet(w, e, m.x, m.y, e.aim + (i - 2) * 0.13 + range(w.rng, -0.03, 0.03), k.speed * range(w.rng, 0.9, 1.05), "pellet", 24);
+                    for (let i = 0; i < 4; i++) fireBullet(w, e, m.x, m.y, e.aim + (i - 1.5) * 0.1 + range(w.rng, -0.02, 0.02), k.speed * range(w.rng, 0.92, 1.04), "pellet", 26);
                     emit(w, "shotgun", m.x, m.y);
                     e.vx = -e.face * 1.2;
                     shake(w, 2);
@@ -272,7 +274,7 @@ const updateFirewall = (w: World, e: Enemy, dt: number) => {
                 // Heavy shield: slow to turn around, which is the opening
                 e.vx = approach(e.vx, 0, 0.3 * dt);
                 e.data.turnT += dt;
-                if (e.data.turnT > 26) {
+                if (e.data.turnT > 36) {
                     e.face = (e.face * -1) as Face;
                     e.data.turnT = 0;
                 }
@@ -290,7 +292,7 @@ const updateFirewall = (w: World, e: Enemy, dt: number) => {
             break;
         case "windup":
             e.t += dt;
-            if (e.t >= 20) {
+            if (e.t >= 26) {
                 e.state = "strike";
                 e.t = 0;
                 e.vx = e.face * 3;
@@ -337,8 +339,8 @@ const updateBug = (w: World, e: Enemy, dt: number) => {
             if (e.ground && Math.abs(dx) < 56 && Math.abs(dy) < 24 && e.cd <= 0) {
                 e.state = "leap";
                 e.face = (dx > 0 ? 1 : -1) as Face;
-                e.vx = e.face * 4.6;
-                e.vy = -3.2;
+                e.vx = e.face * 4.0;
+                e.vy = -3.0;
                 e.ground = false;
                 e.cd = EK.bug.cd;
             } else walkToward(w, e, p.x, EK.bug.run);
@@ -398,7 +400,7 @@ const updateSentry = (w: World, e: Enemy, dt: number, sees: boolean) => {
     if (sees) e.aim = Math.atan2(chestY(p) - my, p.x - mx);
     e.cd -= dt;
     if (e.cd <= 0 && sees) {
-        e.data.burst = 3;
+        e.data.burst = 2;
         e.cd = EK.sentry.cd;
     }
     if (e.data.burst > 0) {

@@ -7,6 +7,8 @@
 //   ^  sentry (hangs from the ceiling)
 //   *  throwable               ?  intel file
 //   -  patrol range for the enemy on the same row
+//   %  solid, drawn by a prop instead of a tile (furniture)
+//   ~  platform, drawn by a prop instead of a tile
 //
 // Enemies are letters; lowercase faces left, uppercase faces right:
 //   b bouncer   g guard   e enforcer   f firewall   u bug   d drone   l launcher   k DogeKing
@@ -63,6 +65,7 @@ export type StageDef = {
     talk?: { x: number; script: import("@/game/story/types").Script }[]; // conversations when the Headhunter reaches column x
     ghost?: boolean; // show a ghost of the last attempt
     boss?: boolean; // no exit: the stage ends when DogeKing is down
+    checkpoints?: [number, number][]; // tiles; dying sends you back to the last one reached
 };
 
 export type Stage = {
@@ -72,6 +75,7 @@ export type Stage = {
     pw: number; // size in pixels
     ph: number;
     tiles: Uint8Array;
+    hidden: Uint8Array; // tiles a prop draws (furniture), so the tile layer skips them
     spawn: { x: number; y: number; face: Face };
     exit: { x: number; y: number; w: number; h: number };
     enemies: { kind: EnemyKind; x: number; y: number; face: Face; patrol: [number, number] | null }[];
@@ -118,6 +122,7 @@ export const parseStage = (def: StageDef): Stage => {
     const rows = map.length;
     const cols = Math.max(...map.map((r) => r.length));
     const tiles = new Uint8Array(cols * rows);
+    const hidden = new Uint8Array(cols * rows);
     let spawn = { x: 2 * TILE, y: (rows - 1) * TILE, face: 1 as Face };
     const exitCells: { x: number; y: number }[] = [];
     const enemies: Stage["enemies"] = [];
@@ -134,6 +139,10 @@ export const parseStage = (def: StageDef): Stage => {
             const by = (y + 1) * TILE;
             if (ch === "#") tiles[y * cols + x] = T_SOLID;
             else if (ch === "=") tiles[y * cols + x] = T_PLATFORM;
+            else if (ch === "%" || ch === "~") {
+                tiles[y * cols + x] = ch === "%" ? T_SOLID : T_PLATFORM;
+                hidden[y * cols + x] = 1;
+            }
             else if (ch === "@") spawn = { x: cx, y: by, face: 1 };
             else if (ch === "$") exitCells.push({ x, y });
             else if (ch === "*") items.push({ kind: itemKinds[itemN++ % itemKinds.length], x: cx, y: by });
@@ -167,6 +176,7 @@ export const parseStage = (def: StageDef): Stage => {
         pw: cols * TILE,
         ph: rows * TILE,
         tiles,
+        hidden,
         spawn,
         exit: { x: ex * TILE, y: ey * TILE, w: (ex2 - ex) * TILE, h: (ey2 - ey) * TILE },
         enemies,

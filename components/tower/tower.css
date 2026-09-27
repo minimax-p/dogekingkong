@@ -724,6 +724,19 @@
   color: var(--t-cyan);
 }
 
+.tw-file-clips {
+  display: flex;
+  gap: 1.5cqw;
+  margin: 1cqh 0;
+}
+
+.tw-file-clips img {
+  height: 18cqh;
+  width: auto;
+  border: 1px solid var(--t-line);
+  image-rendering: auto;
+}
+
 .tw-file-role {
   margin: 1.4cqh 0 0.4cqh;
   font-weight: 600;

@@ -1,13 +1,12 @@
 "use client";
 // Everything drawn as HTML over the game: title, chapter cards, dialogue,
 // death and clear lines, pause menu, settings, elevator and the Dossier.
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import type { Action, UiState } from "@/game/flow/game";
 import type { FloorDef } from "@/game/story/types";
 import Dossier from "@/components/tower/Dossier";
 import Ending from "@/components/tower/Ending";
-import { PROFILE } from "@/lib/content";
+import { PROFILE, SITE_URL } from "@/lib/content";
 
 const SPEAKERS: Record<string, string> = {
     client: "The Client",
@@ -49,7 +48,7 @@ const TowerOverlay: React.FC<Props> = ({ ui, dispatch, floors }) => {
             )}
             {ui.screen === "clear" && (
                 <div className="tw-center">
-                    <p className="tw-clear-line">Yeah. That should work.</p>
+                    <p className="tw-clear-line">{ui.clearLine}</p>
                 </div>
             )}
             {ui.screen === "replay" && (
@@ -81,15 +80,15 @@ const Title: React.FC<{ dispatch: Props["dispatch"] }> = ({ dispatch }) => (
             <br />
             Tower
         </h1>
-        <p className="tw-title-sub">You are the Headhunter. Your target is at the top.</p>
+        <p className="tw-title-sub">You are the Headhunter. Your target is at the top. He does not want a coffee chat.</p>
         <button type="button" className="tw-start" onClick={() => dispatch({ type: "start" })}>
             <span className="tw-start-key">Press any key</span>
             <span className="tw-start-tap">Tap to start</span>
         </button>
         <p className="tw-title-note">Headphones on. Flashing lights and screen shake; turn them down in Settings (Esc).</p>
-        <Link className="tw-title-back" href="/">
-            ← Back to the room
-        </Link>
+        <a className="tw-title-back" href={SITE_URL}>
+            ← Back to dogekingkong.com
+        </a>
     </div>
 );
 
@@ -187,7 +186,7 @@ const Menu: React.FC<{ ui: UiState; dispatch: Props["dispatch"]; floors: FloorDe
                             Skip this stage
                         </button>
                     )}
-                    <Link href="/">Back to the room</Link>
+                    <a href={SITE_URL}>Quit to dogekingkong.com</a>
                     <Controls />
                 </div>
             )}
@@ -213,7 +212,7 @@ const Controls = () => (
         <dt>Shift</dt>
         <dd>Slow time</dd>
         <dt>R</dt>
-        <dd>Restart stage</dd>
+        <dd>Back to the last checkpoint</dd>
     </dl>
 );
 

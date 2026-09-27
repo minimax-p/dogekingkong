@@ -231,6 +231,19 @@ export const stepWorld = (w: World, inp: Input) => {
         // Fell out of the map
         if (w.player.y > w.stage.ph + 40) killPlayer(w, "fall", -Math.PI / 2);
     }
+    // Checkpoints: reach one standing on the ground and it's saved
+    const cps = w.stage.def.checkpoints;
+    if (cps && !w.dead && w.player.ground) {
+        const p = w.player;
+        for (let i = w.flags.cp ?? 0; i < cps.length; i++) {
+            const [cx, cy] = cps[i];
+            if (Math.abs(p.x / 16 - (cx + 0.5)) < 1.6 && Math.abs(p.y / 16 - (cy + 1)) < 2.5) {
+                w.flags.cp = i + 1;
+                emit(w, "checkpoint", p.x, p.y);
+                break;
+            }
+        }
+    }
     // The intel file
     const intel = w.stage.intel;
     if (intel && !w.flags.intel && !w.dead) {

@@ -1,16 +1,6 @@
-// Everything the site says lives here — edit this file to update your portfolio.
-// Content comes from minh-pham-portfolio (the simpler site) and public/resume.pdf.
-
-export type SectionId = "projects" | "work" | "about" | "contact";
-
-export const SECTION_ORDER: SectionId[] = ["projects", "work", "about", "contact"];
-
-export const SECTION_TITLES: Record<SectionId, string> = {
-    projects: "Projects",
-    work: "Work",
-    about: "About",
-    contact: "Contact",
-};
+// Everything the tower says about Minh lives here: the dossier, floor cards,
+// credits and contact card all read from it. Content comes from the plain
+// site (minh-pham-portfolio) and public/resume.pdf.
 
 export const PROFILE = {
     tagline: "Software Engineer @ Stealth",
@@ -18,6 +8,9 @@ export const PROFILE = {
 };
 
 export const RESUME_URL = "/resume.pdf";
+
+// The plain version of the portfolio. The tower's exits point here.
+export const SITE_URL = "https://dogekingkong.com";
 
 export const SOCIALS = {
     email: "phamhuunhatminh221b@gmail.com",
@@ -27,8 +20,8 @@ export const SOCIALS = {
 };
 
 export type Link = { label: string; href: string };
-// Inline link in running text. `gif` (optional) is a short clip that follows the cursor
-// while hovered; leave `href` out to show the clip without linking anywhere.
+// Inline link in running text. `gif` (optional) is a short clip shown with the
+// text in the Dossier; leave `href` out to show the clip without linking anywhere.
 export type HoverLink = { label: string; href?: string; gif?: string };
 // A paragraph made of plain text and inline links, rendered in order
 export type RichText = (string | HoverLink)[];
@@ -190,14 +183,10 @@ export const PROJECTS: Project[] = [
         tags: ["JavaScript", "NASA WorldWind", "dygraphs", "SQL"],
     },
     {
-        name: "This Room",
-        year: "2024 – 26",
-        blurb: "My portfolio — a hand-illustrated room where every piece of furniture opens a part of my life.",
-        tags: ["Next.js", "React", "Illustrator"],
+        name: "DogeKing Tower",
+        year: "2026",
+        blurb: "This game. A Katana Zero-style climb through my résumé: a custom TypeScript engine with deterministic replays, hand-made pixel sprites, and music synthesized live in the browser.",
+        tags: ["TypeScript", "Canvas", "WebGL", "Web Audio"],
         link: { label: "Source", href: "https://github.com/minimax-p/dogekingkong" },
     },
 ];
-
-export const CONTACT = {
-    intro: "Thanks for the visit! Email is the best way to reach me — or find me on LinkedIn and GitHub.",
-};
