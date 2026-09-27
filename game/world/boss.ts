@@ -150,7 +150,7 @@ export const updateBoss = (w: World, e: Enemy, dt: number) => {
                 d.step = (d.step ?? 0) + 1;
                 // Keep some distance before a dash or a solo
                 if ((next === "dash" || next === "solo") && Math.abs(p.x - e.x) < 90) {
-                    d.tx = p.x < w.stage.pw / 2 ? w.stage.pw - 48 : 48;
+                    d.tx = p.x < w.stage.pw / 2 ? w.stage.pw * 0.68 : w.stage.pw * 0.32;
                     d.after = next === "dash" ? 1 : 2;
                     setState(e, "move");
                 } else setState(e, next === "dash" ? "windup" : next);
@@ -160,7 +160,13 @@ export const updateBoss = (w: World, e: Enemy, dt: number) => {
             const dir = Math.sign(d.tx - e.x);
             e.face = (dir || e.face) as Face;
             e.vx = approach(e.vx, dir * 3.2, 0.5 * dt);
-            if (Math.abs(d.tx - e.x) < 8 || res.hitX !== 0 || e.t > 90) {
+            // Hop over furniture on the way
+            if (res.hitX !== 0 && e.ground) {
+                e.vy = -6.6;
+                e.ground = false;
+                e.vx = dir * 3.2;
+            }
+            if (Math.abs(d.tx - e.x) < 8 || e.t > 110) {
                 e.vx = 0;
                 setState(e, d.after === 2 ? "solo" : "windup");
             }

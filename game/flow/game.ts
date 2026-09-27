@@ -426,15 +426,23 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
                     endReplay();
                     break;
                 }
-                const speed = s.replaySpeed;
-                for (let k = 0; k < speed && replay; k++) {
+                // The tape plays in world time: slow motion and hit-stop go by at
+                // full speed, so you see how fast the Headhunter really moved
+                // compared to everyone else.
+                let budget = s.replaySpeed;
+                const heard = new Set<string>();
+                for (let n = 0; budget > 0 && replay && n < 80; n++) {
                     const inp = rec.tape[replay.i++];
                     if (!inp || replay.world.won) {
                         endReplay();
                         break;
                     }
+                    const frozen = replay.world.hitstop > 0;
                     stepWorld(replay.world, inp);
-                    if (k === 0) audio?.events(replay.world.events, replay.world, true);
+                    budget -= frozen ? 0 : replay.world.scale;
+                    const fresh = replay.world.events.filter((e) => !heard.has(e.type));
+                    fresh.forEach((e) => heard.add(e.type));
+                    if (fresh.length) audio?.events(fresh, replay.world, true);
                 }
                 break;
             }
@@ -444,7 +452,7 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
         }
     };
 
-    const REWIND_STEPS = 80;
+    const REWIND_STEPS = 60;
 
     const startRewind = () => {
         setScreen("rewind");
@@ -522,11 +530,23 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
                 break;
             case "rewind": {
                 mode = "rewind";
-                const n = rec.snaps.length;
+                // Back through the attempt in world time, so slow motion doesn't drag
+                const snaps = rec.snaps;
                 const k = Math.min(1, screenT / REWIND_STEPS);
                 const eased = 1 - (1 - k) * (1 - k);
-                const idx = Math.max(0, Math.round((n - 1) * (1 - eased)));
-                if (n) w = worldAt(world, rec.snaps[idx]);
+                if (snaps.length) {
+                    const t0 = snaps[0].time;
+                    const t1 = snaps[snaps.length - 1].time;
+                    const target = t1 - (t1 - t0) * eased;
+                    let lo = 0;
+                    let hi = snaps.length - 1;
+                    while (lo < hi) {
+                        const mid = (lo + hi + 1) >> 1;
+                        if (snaps[mid].time <= target) lo = mid;
+                        else hi = mid - 1;
+                    }
+                    w = worldAt(world, snaps[lo]);
+                }
                 P.vhs = 1;
                 P.rewind = 1;
                 P.ca = 2.5;
@@ -538,7 +558,6 @@ export const createGame = (display: HTMLCanvasElement, floors: FloorDef[], opts:
                 if (replay) w = replay.world;
                 P.vhs = 0.85;
                 P.ca = 1.2;
-                P.focus = replay ? replay.world.focus * 0.6 : 0;
                 break;
             case "title":
             case "card":

@@ -34,7 +34,7 @@ export const bakeStage = (s: Stage): Baked => {
         for (let tx = 0; tx < s.cols; tx++) {
             const t = tileAt(s, tx, ty);
             if (t !== 0) continue;
-            if (tileAt(s, tx, ty + 1) === T_SOLID) {
+            if (tileAt(s, tx, ty + 1) === T_SOLID && !s.hidden[(ty + 1) * s.cols + tx]) {
                 R(g, tx * TILE, (ty + 1) * TILE - 4, TILE, 4, th.wallLo);
                 R(g, tx * TILE, (ty + 1) * TILE - 5, TILE, 1, th.wallHi);
             }
@@ -111,14 +111,16 @@ const drawPattern = (g: CanvasRenderingContext2D, s: Stage, th: Theme, rng: Retu
 const drawTiles = (g: CanvasRenderingContext2D, s: Stage, th: Theme, rng: ReturnType<typeof makeRng>) => {
     for (let ty = 0; ty < s.rows; ty++) {
         for (let tx = 0; tx < s.cols; tx++) {
-            const t = tileAt(s, tx, ty);
+            const t = s.hidden[ty * s.cols + tx] ? 0 : tileAt(s, tx, ty);
             const x = tx * TILE;
             const y = ty * TILE;
             if (t === T_SOLID) {
-                const up = tileAt(s, tx, ty - 1) === T_SOLID;
-                const dn = tileAt(s, tx, ty + 1) === T_SOLID;
-                const lf = tileAt(s, tx - 1, ty) === T_SOLID;
-                const rt = tileAt(s, tx + 1, ty) === T_SOLID;
+                // Furniture tiles count as open air here, so the floor keeps its edge
+                const vis = (x2: number, y2: number) => tileAt(s, x2, y2) === T_SOLID && !(y2 >= 0 && y2 < s.rows && x2 >= 0 && x2 < s.cols && s.hidden[y2 * s.cols + x2]);
+                const up = vis(tx, ty - 1);
+                const dn = vis(tx, ty + 1);
+                const lf = vis(tx - 1, ty);
+                const rt = vis(tx + 1, ty);
                 R(g, x, y, TILE, TILE, th.solid);
                 // Deep inside the mass: darker, with a faint grid
                 if (up && dn && lf && rt) {
